@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Helper to push the app-dir to the Appcenter
+#
+# Copyright (C) 2022 Univention GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Name: GNU Affero General Public License v3.0 or later
+# SPDX-License-URL: https://spdx.org/licenses/AGPL-3.0-or-later.html
+
+APP_ID="dovecot-connector"
+
+download_univention-appcenter-control() {
+  if ! [[ -x univention-appcenter-control ]]; then
+    curl --silent --output univention-appcenter-control \
+      https://provider-portal.software-univention.de/appcenter-selfservice/univention-appcenter-control
+    chmod +x univention-appcenter-control
+  fi
+}
+
+APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
+APP_VERSION_STRING="4.4/${APP_ID}=${APP_VERSION}"
+echo "App version in source code is: '${APP_VERSION}'."
+echo "The app version string used for the upload is '${APP_VERSION_STRING}'."
+
+if ! [[ -e "${HOME}/.univention-appcenter-user" ]] || ! [[ -e "${HOME}/.univention-appcenter-pwd" ]]; then
+  echo -e "\nTo upload the files to the test appcenter you will now be asked for your"
+  echo "username and password. Hint: create ~/.univention-appcenter-user and"
+  echo "~/.univention-appcenter-pwd to skip the question."
+fi
+
+# upload to univention app provider portal
+download_univention-appcenter-control
+
+echo -e "\nFiles to upload:\n-------------------------------------------------------------------------------"
+find app/ -type f | sort
+
+read -n1 -r -p "Press any key to continue or Ctrl-C to abort."
+echo
+
+./univention-appcenter-control upload "${APP_VERSION_STRING}" $(find app/ -type f | sort)

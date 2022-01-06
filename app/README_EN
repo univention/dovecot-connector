@@ -1,0 +1,14 @@
+<p>
+	The Dovecot Connector App was successfully installed on your system.
+</p>
+<p>
+	The following UDM objects will be cleaned up on the Dovecot system:
+</p>
+<ul>
+	<li>
+		<a href="#module=udm:users/user:0:">Users</a>
+	</li>
+</ul>
+<p>
+	The log file  <i>/var/log/univention/listener_modules/dovecot-connector.log </i>should contain every information you need, should the provisioning stop working. The data files on which the App works are located here: <i>/var/lib/univention-appcenter/apps/dovecot-connector/data/listener/</i>.
+</p>

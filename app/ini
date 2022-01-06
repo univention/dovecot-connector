@@ -1,0 +1,77 @@
+
+# Dovecot-Connector - Appcenter-ini-file
+
+[Application]
+
+ID = dovecot-connector
+
+Code = 3M
+
+Version = 1.0.0
+
+Name = Dovecot Connector
+
+Vendor = Univention
+
+DockerScriptRestoreDataAfterSetup =
+
+DockerScriptStoreData =
+
+DockerScriptUpdateAvailable =
+
+DockerScriptRestoreDataBeforeSetup =
+
+DockerScriptUpdatePackages =
+
+DockerScriptUpdateAppVersion =
+
+DockerScriptUpdateRelease =
+
+DockerScriptSetup =
+
+ListenerUDMModules = users/user
+
+DockerShellCommand = /bin/ash
+
+DockerImage = docker.software-univention.de/dovecot-connector:1.0.0
+
+# Path to script inside the container (absolute)
+DockerScriptConfigure = /tmp/dovecot-connector.configure
+
+Description = Synchronize UCS User-deletion to Dovecot
+
+SupportedUcsVersions = 4.4-8, 5.0-0
+
+LongDescription = <p>
+		The Dovecot Connector App cleans up users deleted on UCS
+	</p>
+	<p>
+	</p>
+	<p>
+		In order to use the App, you need a remote Dovecot installation. Typically, this remote server is not a UCS system.
+	</p>
+	<p>
+		There are two prerequisites for this App to work: The remote Dovecot installation needs to allow access to the <i>doveadm port</i> and you probably want to tunnel this plain HTTP connection through an encrypted tunnel.
+		<br>
+	</p>
+
+Logo = logo.svg
+
+[de]
+
+Description = UCS-Benutzer-Löschungen nach Dovecot synchronisieren
+
+LongDescription = <p>
+		Die Dovecot Connector App synchronisiert zu löschende Benutzer zu einem entfernten Dovecot über die doveadm Schnittstelle von Dovecot.
+	</p>
+	<p>
+	</p>
+	<p>
+		Um diese App zu nutzen, brauchen Sie eine entfernte Dovecot-Installation. Typischerweise wird dies kein UCS-System sein.
+	</p>
+	<p>
+		Es gibt zwei Voraussetzungen, damit die App funktionieren kann: Die entfernte Dovecot-Installation muss Zugriff auf den <i>doveadm port</i> erlauben und Sie wollen wahscheinlich die unverschlüsselte doveadm-Verbindung durch einen sicheren Tunnel leiten.
+		<br>
+	</p>
+
+# [EOF]

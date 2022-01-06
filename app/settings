@@ -1,0 +1,52 @@
+
+# Dovecot-Connector - Appcenter-Settings-File
+
+[DCC_ADM_HOST]
+Description = The domain-name of the server where DoveAdm has been activated
+Description[de] = Der Domänenname des Servers auf dem DoveAdm aktiviert wurde
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = dovecot.@%@domainname@%@
+
+[DCC_ADM_PORT]
+Description = The Port DoveAdm is exposed on
+Description[de] = Der Port auf dem DoveAdm erreichbar ist
+Show = Install, Settings
+Type = Int
+Required = True
+InitialValue = 443
+
+[DCC_ADM_USERNAME]
+Description = DoveAdm username
+Description[de] = DoveAdm Benutzername
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = doveadm
+
+[DCC_ADM_PASSWORD]
+Description = DoveAdm password
+Description[de] = DoveAdm Passwort
+Show = Install, Settings
+Type = Password
+Required = True
+InitialValue = change-me!
+
+[DCC_ADM_URI]
+Description = DoveAdm URL template. Allowed variables are `{DCC_ADM_HOST}` and `{dcc_adm_port}`.
+Description[de] = DoveAdm URL Vorlage. Mögliche Variablen `{dcc_adm_host}` und `{dcc_adm_port}`.
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = https://{dcc_adm_host}:{dcc_adm_port:d}/doveadm/v1
+
+[DCC_DC_VMAIL_TEMPLATE]
+Description = The vmail directory used by Dovecot. Allowed variables are `{uuid}`, `{email}`, `{domain}` and `{username}`.
+Description[de] = Das vmail Verzeichnis welches Dovecot nutzt. Mögliche Variablen `{uuid}`, `{email}`, `{domain}` und `{username}`.
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = /data/usr/local/dovecot/vmail/{domain}/{uuid}
+
+# [EOF]
