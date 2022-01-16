@@ -1,0 +1,461 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Dovecot-Connector - Listener-Trigger
+#   Script that is called after objects changed
+#
+# Copyright (C) 2022 Univention GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Name: GNU Affero General Public License v3.0 or later
+# SPDX-License-URL: https://spdx.org/licenses/AGPL-3.0-or-later.html
+
+"""
+Dovecot Connector entry point for listener_trigger script.
+"""
+
+# included
+import json
+import logging
+import os
+import sys
+import time
+from pathlib import Path
+
+# 3rd party
+import doveadm  # pylint: disable=import-error
+import doveadm.fs  # pylint: disable=import-error
+import requests
+
+DEFAULT_DCC_ADM_HOST = '127.0.0.1'
+DEFAULT_DCC_ADM_PORT = 8080
+DEFAULT_DCC_ADM_URI = 'http://{DCC_ADM_HOST}:{DCC_ADM_PORT:d}/doveadm/v1'
+DEFAULT_DCC_ADM_USERNAME = 'doveadm'
+
+APP = "dovecot-connector"
+DATA_DIR = Path("/var/lib/univention-appcenter/apps", APP, "data")
+NEW_FILES_DIR = DATA_DIR / "listener"
+OLD_FILES_DIR = NEW_FILES_DIR / "old"
+
+logger = logging.getLogger("dcc")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(name)s: %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+listener_logger = logging.getLogger("listener")
+listener_logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter("%(name)s: %(message)s")
+handler.setFormatter(formatter)
+listener_logger.addHandler(handler)
+
+logger.debug('Loading %s', __name__)
+
+
+class DeleteFailedError(Exception):
+    """Raised if the doveadm delete fails"""
+
+
+class HandleChangedObjectsError(Exception):
+    """Raised if handle_single_object fails"""
+
+
+def load_from_json_file(path):
+    """
+    Just a helper function to get JSON content from a file, if it
+    exists
+    """
+    logger.debug('def load_from_json_file start "%s"', path)
+    if not path.exists():
+        return None
+    with path.open() as file_handler:
+        return json.load(file_handler)
+
+
+class TriggerObject:
+    """
+    A thin wrapper over a JSON file. Holds all the information from that
+    file. May also hold information of this object from a previous run
+    (needs a second, backup file for that)
+    """
+    def __init__(self, content, path=None):
+        self.content = content
+        # content['id'] is the the entry_uuid
+        # content['udm_object_type'] is the object_type
+        # content['dn'] is the distinguished_name or dn
+        # content['object'] are the attributes
+        self.old_dn = None
+        self.old_attributes = None
+        self.old_options = None
+        self.path = path  # file where it originates from
+        self._old_loaded = False
+
+    def __repr__(self):
+        logger.debug('def TriggerObject/__repr__ start')
+        return (
+            f"Object({self.content['udm_object_type']!r}, "
+            f"{self.content['dn']!r})"
+        )
+
+    def get_old_file_path(self):
+        """
+        Name of the old file. May or may not be present. Is used by
+        objects_from_files to move files if speceified.
+        """
+        file_name = f"{self.content['id']}.json"
+        return OLD_FILES_DIR / file_name
+
+    def load_old(self):
+        """Loads the old filename and sets attributes accordingly"""
+        old_path = self.get_old_file_path()
+        content = load_from_json_file(old_path)
+        if content:
+            self.old_dn = content["dn"]
+            self.old_attributes = content["object"]
+            self.old_options = content["options"]
+        self._old_loaded = True
+
+    def was_added(self):
+        """
+        Whether this object is new. Needs the have read an old file
+        for this to give a meaningful response
+        """
+        logger.debug('def TriggerObject/was_added start')
+        if not self._old_loaded:
+            return None
+        return self.old_dn is None
+
+    def was_modified(self):
+        """
+        Whether this object was modified. Needs the have read an old
+        file for this to give a meaningful response
+        """
+        logger.debug('def TriggerObject/was_modified start')
+        if self.content['object'] is None:
+            return False
+        if not self._old_loaded:
+            return None
+        return self.old_dn is not None
+
+    def was_deleted(self):
+        """Whether this object was deleted."""
+        logger.debug('def TriggerObject/was_deleted start')
+        return self.content['object'] is None
+
+
+def object_from_path(path):
+    """Create a TriggerObject from a Listerner-JSON file"""
+    logger.debug('def object_from_path start')
+    content = load_from_json_file(path)
+    obj = TriggerObject(content, path)
+    return obj
+
+
+def objects_from_files(delete_files=True, move_files=False):
+    """
+    Iterates over all JSON files and yields a TriggerObject. After the
+    caller is done with it, it can delete or move the file. If it moves the
+    file, a copy of this very JSON file is created so that a new run can
+    reload it (useful if you need to act on various changes in
+    attributes)
+    """
+    logger.debug('def objects_from_files start')
+    objs = []
+    for path in sorted(NEW_FILES_DIR.glob("*.json")):
+        obj = object_from_path(path)
+        if move_files:
+            obj.load_old()
+        if obj.content['object'] is None and obj.old_attributes is None:
+            # happens when creation and deletion happens within one
+            path.unlink()
+        else:
+            objs.append((obj, path))
+
+    for obj, path in objs:
+        yield obj
+        if move_files:
+            if obj.was_deleted():
+                logger.debug('Object was deleted. Removing "%s"', path)
+                path.unlink()
+            else:
+                old_file_path = obj.get_old_file_path()
+                logger.debug(
+                    'Object changed. Moving "%s" to "%s"', path, old_file_path
+                )
+                old_file_path.parent.mkdir(parents=True, exist_ok=True)
+                if old_file_path.exists():
+                    old_file_path.unlink()
+                path.replace(old_file_path)
+        elif delete_files:
+            logger.debug('Removing file after object change: %s', path)
+            path.unlink()
+    logger.debug('def objects_from_files end')
+
+
+def handle_single_object(settings, obj):
+    """Handles one changed user-object"""
+    logger.debug('def handle_single_object start')
+    if obj.content['udm_object_type'] != 'users/user':
+        logger.debug('Ignore object_type: %s', obj.content['udm_object_type'])
+        return
+    # just remove the "dcc-test" folder for testing
+    # delete_on_all_hosts(
+    #     settings,
+    #     obj.content['dn'],
+    #     obj.content['id'],
+    #     obj.content['object'],
+    #     test_mode=True,
+    # )
+    if obj.was_added():
+        logger.debug(
+            'handle added: %s (%s)', obj.content['dn'], obj.content['id']
+        )
+    elif obj.was_modified():
+        logger.debug(
+            'handle modified: %s (%s)', obj.content['dn'], obj.content['id']
+        )
+    elif obj.was_deleted():
+        logger.debug(
+            'handle deleted: %s (%s)', obj.content['dn'], obj.content['id']
+        )
+        delete_on_all_hosts(
+            settings,
+            obj.content['dn'],
+            obj.content['id'],
+            obj.old_attributes,
+            test_mode=False,
+        )
+    else:
+        logger.error(
+            'handle unknown state: %s (%s)',
+            obj.content['dn'],
+            obj.content['id'],
+        )
+    logger.debug('def handle_single_object end')
+    return
+
+
+def build_translation_table(uuid, attributes):
+    """Build a translation table for the dovecot path template"""
+    translation_table = {
+        'uuid': uuid,
+        'email': attributes['mailPrimaryAddress'],
+        'domain': attributes['mailPrimaryAddress'].rsplit('@', 1)[1],
+        'username': attributes['username'],
+    }
+    return translation_table
+
+
+def delete_on_all_hosts(
+    settings, distinguished_name, uuid, attributes, test_mode=False
+):
+    """Calls dovecot_delete_path for every host found in DCC_ADM_HOST"""
+    logger.debug('def delete_on_all_hosts start')
+    try:
+        translation_table = build_translation_table(uuid, attributes)
+    except KeyError as err:
+        logger.warning(
+            'Unable to build translation table with %s for %s (KeyError)',
+            err,
+            distinguished_name,
+        )
+        return
+    except TypeError as err:
+        logger.error(
+            'Unable to build translation table with %s for %s (TypeError)',
+            err,
+            distinguished_name,
+        )
+        logger.error('DEBUG distinguished_name %s', distinguished_name)
+        logger.error('DEBUG uuid %s', uuid)
+        logger.error('DEBUG attributes %s', attributes)
+        return
+
+    mb_path = get_dovecot_user_path(settings, translation_table, test_mode)
+    logger.info('Trying to remove the folder "%s" on all servers', mb_path)
+
+    for hostname in settings['dcc_adm_host']:
+        logger.debug('def delete_on_all_hosts loop "%s"', hostname)
+        template_parameters = {
+            'dcc_adm_host': hostname,
+            'dcc_adm_port': settings['dcc_adm_port'],
+        }
+        cur_uri = settings['dcc_adm_uri'].format(**template_parameters)
+        dovecot_delete_path(cur_uri, settings, mb_path)
+    logger.debug('def delete_on_all_hosts end')
+    return
+
+
+def get_dovecot_user_path(settings, translation_table, test_mode=False):
+    """Build the user path for FsDeleteCmd"""
+    try:
+        mb_path = settings['dcc_dc_vmail_template'].format(**translation_table)
+    except KeyError as err:
+        logger.error(
+            'Unable to build path from "%s" with "%s": "%s"',
+            settings['dcc_dc_vmail_template'],
+            translation_table,
+            err,
+        )
+        raise DeleteFailedError('Path template failed') from err
+    except TypeError as err:
+        logger.error(
+            'Unable to build path from "%s" with "%s": "%s"',
+            settings['dcc_dc_vmail_template'],
+            translation_table,
+            err,
+        )
+        raise DeleteFailedError('Path template failed') from err
+    if not mb_path:
+        raise DeleteFailedError('Path is empty. Set template variable!')
+    if test_mode:
+        mb_path = os.path.join(mb_path, 'mdbox/mailboxes/INBOX/dcc-test')
+    return mb_path
+
+
+def dovecot_delete_path(dcc_adm_uri, settings, mb_path):
+    """Calls DovAdm.FsDeleteCmd with domain and uuid in the path"""
+    logger.debug('def dovecot_delete_path start')
+    logger.debug('Creating DovAdm object with: %s', dcc_adm_uri)
+    dov_adm = doveadm.DovAdm(
+        dcc_adm_uri,
+        username=settings['dcc_adm_username'],
+        password=settings['dcc_adm_password'],
+    )
+    logger.debug('Calling FsDeleteCmd with path: %s', mb_path)
+    try:
+        fs_delete_cmd = doveadm.fs.FsDeleteCmd(
+            path=mb_path,
+            recursive=True,
+            tag='tag4',
+        )
+    except ConnectionRefusedError as err:
+        logger.error('FsDeleteCmd failed with ConnectionRefusedError: %s', err)
+        raise DeleteFailedError('Connection refused') from err
+    except Exception as err:
+        logger.error('FsDeleteCmd failed with Exception: %s', err)
+        raise
+
+    logger.debug('Calling DovAdm.submit with: %s', fs_delete_cmd.payload)
+    try:
+        dov_adm.submit(fs_delete_cmd)
+    except doveadm.DovAdmError as err:
+        if err.exit_code == 75:
+            logger.warning('Path "%s" not found.', mb_path)
+        else:
+            logger.error('Submit failed with DovAdmError: %s', err)
+            logger.error(
+                '_response: %s',
+                err._response,  # pylint: disable=protected-access
+            )
+            logger.error(
+                '_msg: %s',
+                err._msg,  # pylint: disable=protected-access
+            )
+            logger.error('exit_code: %s', err.exit_code)
+            raise DeleteFailedError('DovAdm.submit failed') from err
+    except requests.exceptions.ConnectionError as err:
+        logger.error('DovAdm.submit failed with ConnectionError: %s', err)
+        raise DeleteFailedError(
+            f'Failed to connect to DovAdmWeb: {err}'
+        ) from err
+    except Exception as err:
+        logger.error('DovAdm.submit failed with Exception: %s', err)
+        raise
+
+
+def handle_changed_objects(settings, objs):
+    """
+    Iterates over objects (instanciated from listener-JSON-files) and runs
+    handle_single_object on every object.
+    Returns None on success
+    Raises HandleChangedObjectsError on failure
+    """
+    logger.debug('def handle_changed_objects start')
+    processed = 0
+    for obj in objs:
+        logger.info('Handling %s', obj.path)
+        try:
+            handle_single_object(settings, obj)
+        except DeleteFailedError as err:
+            logger.error(
+                'Failed to process object from "%s": %s', obj.path, err
+            )
+            raise HandleChangedObjectsError from err
+        except Exception as err:  # pylint: disable=broad-except
+            logger.error(
+                'Unhandled exception "%s" while handling "%s"',
+                repr(err),
+                obj.path,
+            )
+            logger.critical(err, exc_info=True)
+            raise HandleChangedObjectsError from err
+        else:
+            processed += 1
+    if processed == 0:
+        raise HandleChangedObjectsError('no files processed')
+    logger.info('Successfully processed %s files during this run', processed)
+    return
+
+
+def main():
+    """Reads env-vars and handles listener-JSON-files"""
+    seconds_to_sleep_after_error = 10
+    logger.debug('def main start')
+    settings = {}
+    settings['dcc_adm_uri'] = os.environ.get(
+        'DCC_ADM_URI', DEFAULT_DCC_ADM_URI
+    )
+    settings['dcc_adm_host'] = os.environ.get(
+        'DCC_ADM_HOST', DEFAULT_DCC_ADM_HOST
+    )
+    settings['dcc_adm_port'] = int(
+        os.environ.get('DCC_ADM_PORT', DEFAULT_DCC_ADM_PORT)
+    )
+    settings['dcc_adm_username'] = os.environ.get(
+        'DCC_ADM_USERNAME', DEFAULT_DCC_ADM_USERNAME
+    )
+    settings['dcc_adm_password'] = os.environ.get('DCC_ADM_PASSWORD', '')
+    settings['dcc_dc_vmail_template'] = os.environ.get(
+        'DCC_DC_VMAIL_TEMPLATE', ''
+    )
+
+    settings['dcc_adm_host'] = settings['dcc_adm_host'].replace(' ', ',')
+    settings['dcc_adm_host'] = settings['dcc_adm_host'].replace(',,', ',')
+    settings['dcc_adm_host'] = settings['dcc_adm_host'].split(',')
+
+    # run forever and only exit on error
+    while True:
+        objs = objects_from_files(delete_files=False, move_files=True)
+        try:
+            handle_changed_objects(settings, objs)
+        except HandleChangedObjectsError:
+            logger.warning('Sleeping for %s sec', seconds_to_sleep_after_error)
+            time.sleep(seconds_to_sleep_after_error)
+            return 1
+    # never reached
+    return 0
+
+
+if __name__ == '__main__':
+    EXIT_CODE = main()
+    sys.exit(EXIT_CODE)
+
+logger.debug('Loaded listener_trigger module')
+
+# [EOF]
