@@ -2,6 +2,28 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=invalid-name
 
+# Dovecot-Connector - Development-Helper
+#   Build the Docker image, deploys image and trigger
+#
+# Copyright (C) 2022 Univention GmbH
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# SPDX-License-Name: GNU Affero General Public License v3.0 or later
+# SPDX-License-URL: https://spdx.org/licenses/AGPL-3.0-or-later.html
+
 """Development cycle helper"""
 
 # included batteries
@@ -29,20 +51,17 @@ def section(msg: str):
     print(f'== {msg}')
 
 
-def update_trigger(sh_out: sh.Command, ucs_host: str):
+def update_trigger(sh_out: sh.Command, **args: dict):
     """Update the listener_trigger"""
 
-    if ucs_host is None:
-        raise ProcessFailed('UCS_HOST not set')
-
     local_path = 'app/listener_trigger'
-    section(f'Finding trigger on "{ucs_host}"')
+    section(f"Finding trigger on \"{args['ucs_host']}\"")
     if not os.path.exists(local_path):
         raise ProcessFailed(f'file "{local_path}" not found')
     try:
         # pylint: disable=too-many-function-args
         found = sh.ssh(
-            ucs_host,
+            args['ucs_host'],
             'find',
             '/var/cache/univention-appcenter',
             '-type f',
@@ -63,7 +82,7 @@ def update_trigger(sh_out: sh.Command, ucs_host: str):
     trigger_path = sorted(found)[-1]
 
     section('Transfering trigger')
-    sh_out.scp('-v', local_path, f'{ucs_host}:{trigger_path}')
+    sh_out.scp('-v', local_path, f"{args['ucs_host']}:{trigger_path}")
     return
 
 
@@ -103,14 +122,19 @@ def transfer_image(ussh_out: sh.Command, image_path: str):
     print('Waiting for transfer to finish...')
     try:
         running_command.wait(300)
-    except sh.ErrorReturnCode_255 as err:
+    except sh.ErrorReturnCode_255 as err:  # pylint: disable=no-member
         # i.e. "No route to host"
         raise ProcessFailed('ssh connection failed') from err
     except sh.TimeoutException as err:
         raise ProcessFailed('image transfer timed out') from err
 
 
-def reinstall_app(ussh_out: sh.Command):
+def reinstall_app(
+    ussh_out: sh.Command,
+    image_path: str,
+    ucs_admin_password: str,
+    doveadm_password: str,
+):
     """Reinstall the appcenter app"""
 
     uapp_out = ussh_out.bake('univention-app')
@@ -119,50 +143,54 @@ def reinstall_app(ussh_out: sh.Command):
         uapp_out(
             'remove',
             'dovecot-connector',
+            f'--password={ucs_admin_password}',
             '--do-not-backup',
             '--noninteractive',
         )
     except sh.ErrorReturnCode_255 as err:  # pylint: disable=no-member
         print('App removal failed')
         raise NetworkUnreachable from err
+
     section('Setting DockerImage')
     uapp_out(
         'dev-set', 'dovecot-connector', 'DockerImage=dovecot-connector:0.0.1'
     )
+
     section('Installing')
     try:
         uapp_out(
             'install',
             'dovecot-connector',
-            '--password=univention',
+            f'--password={ucs_admin_password}',
             '--noninteractive',
             '--do-not-pull-image',
+            '--set',
+            f'DCC_ADM_PASSWORD={doveadm_password}',
         )
-    except sh.ErrorReturnCode_1 as err:
+    except sh.ErrorReturnCode_1 as err:  # pylint: disable=no-member
         print('App reinstall failed')
         raise ProcessFailed('uapp install failed') from err
 
 
-def update_image(
-    sh_out: sh.Command, ucs_host: str, image_name: str, image_tag: str
-):
+def update_image(sh_out: sh.Command, **args: dict):
     """Call functions for updating the image"""
 
-    if image_name is None:
-        raise ProcessFailed('image name not set')
-    if image_tag is None:
-        raise ProcessFailed('tag not set')
-    image_path = f'{image_name}:{image_tag}'
-    ussh_out = sh_out.ssh.bake(ucs_host)
-    build_image(sh_out, image_tag, image_path)
+    image_path = f"{args['image_name']}:{args['image_tag']}"
+    ussh_out = sh_out.ssh.bake(args['ucs_host'])
+    build_image(sh_out, args['image_tag'], image_path)
     transfer_image(ussh_out, image_path)
-    reinstall_app(ussh_out)
+    reinstall_app(
+        ussh_out,
+        image_path,
+        args['ucs_admin_password'],
+        args['doveadm_password'],
+    )
 
 
 def update_all(sh_out: sh.Command, **args: dict):
     """Process development steps"""
 
-    update_trigger(sh_out, args['ucs_host'])
+    update_trigger(sh_out, **args)
     update_image(sh_out, **args)
 
 
@@ -220,6 +248,22 @@ def parse_args(gcfg, args):
         default=gcfg.get('ucs_host'),
         type=not_empty,
         help='ucs host',
+    )
+
+    parser.add_argument(
+        '--admin-password',
+        dest='ucs_admin_password',
+        default=gcfg.get('ucs_admin_password'),
+        type=not_empty,
+        help='UCS Server Admin Password',
+    )
+
+    parser.add_argument(
+        '--doveadm-password',
+        dest='doveadm_password',
+        default=gcfg.get('doveadm_password'),
+        type=not_empty,
+        help='doveadm Password (DCC_ADM_PASSWORD)',
     )
 
     args = parser.parse_args(args)
