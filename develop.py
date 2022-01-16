@@ -156,9 +156,7 @@ def reinstall_app(
         raise NetworkUnreachable from err
 
     section('Setting DockerImage')
-    uapp_out(
-        'dev-set', 'dovecot-connector', 'DockerImage=dovecot-connector:0.0.1'
-    )
+    uapp_out('dev-set', 'dovecot-connector', f'DockerImage={image_path}')
 
     section('Installing')
     try:
