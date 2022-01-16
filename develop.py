@@ -138,6 +138,10 @@ def reinstall_app(
     """Reinstall the appcenter app"""
 
     uapp_out = ussh_out.bake('univention-app')
+
+    section('Update app info')
+    uapp_out('update')
+
     section('Removing app')
     try:
         uapp_out(
