@@ -6,7 +6,7 @@ Download an artifact from a different Gitlab project
 """
 
 # included batteries
-from datetime import datetime
+from datetime import datetime, timezone
 import os
 import sys
 
@@ -73,14 +73,18 @@ class GitlabApi:
         job = response.json()
         if 'artifacts_file' not in job or 'artifacts_expire_at' not in job:
             raise GitlabError('archive not found')
-        artifacts_expire_at = datetime.strptime(
-            job["artifacts_expire_at"],
-            '%Y-%m-%dT%H:%M:%S.%fZ',
-        )
-        time_left = artifacts_expire_at - datetime.utcnow()
-        seconds_left = time_left.total_seconds()
-        if seconds_left < 0:
-            raise GitlabError('artifacts expired')
+        try:
+            artifacts_expire_at = datetime.strptime(
+                job["artifacts_expire_at"],
+                '%Y-%m-%dT%H:%M:%S.%f%z',
+            )
+        except ValueError as err:
+            print(f'Failed to parse artifacts_expire_at: {err}')
+        else:
+            time_left = artifacts_expire_at - datetime.utcnow().replace(tzinfo=timezone.utc)
+            seconds_left = time_left.total_seconds()
+            if seconds_left < 0:
+                raise GitlabError('artifacts expired')
         return
 
     def download_artifact(self, job_id, download_path=DEFAULT_DL_PATH):
