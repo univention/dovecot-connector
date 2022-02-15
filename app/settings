@@ -49,4 +49,12 @@ Type = String
 Required = True
 InitialValue = /data/usr/local/dovecot/vmail/{domain}/{uuid}
 
+[DCC_LOGLEVEL]
+Description = The applications loglevel. Choose from `DEBUG`, `INFO`, `WARNING` and `ERROR`.
+Description[de] = Die Log-Stufe der Anwendung. Wähle aus `DEBUG`, `INFO`, `WARNING` und `ERROR`.
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = INFO
+
 # [EOF]
