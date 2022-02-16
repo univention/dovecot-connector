@@ -27,15 +27,15 @@ class GitlabApi:
     def __init__(self, ca_path, base_url, project_id, token):
         self.base_url = base_url
         self.project_id = project_id
+        self.verify = ca_path
         self.session = requests.session()
         self.session.headers.update({'PRIVATE-TOKEN': token})
-        self.session.verify = ca_path
 
     def get_pipeline_id(self, branch='main'):
         """Get the latest pipeline-id of a given branch"""
         pipelines_url = f'{self.base_url}/projects/{self.project_id}/pipelines'
         params = {'ref': branch, 'per_page': 1}
-        response = self.session.get(pipelines_url, params=params)
+        response = self.session.get(pipelines_url, params=params, verify=self.verify)
         content = response.json()
         if response.status_code == 401:
             print(f"Message: {content['message']}")
@@ -93,6 +93,7 @@ class GitlabApi:
             f'{self.base_url}/projects/{self.project_id}'
             f'/jobs/{job_id}/artifacts'
         )
+        # Hosted on `de-2.s3.psmanaged.com`
         with self.session.get(artifacts_url, stream=True) as response:
             if response.status_code != 200:
                 raise GitlabError(
