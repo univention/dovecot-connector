@@ -414,6 +414,11 @@ def handle_changed_objects(settings, objs):
     return
 
 
+def settings_list(setting):
+    """Parse words separated by space or coma into a list"""
+    return setting.replace(' ', ',').replace(',,', ',').split(',')
+
+
 def main():
     """Reads env-vars and handles listener-JSON-files"""
     seconds_to_sleep_after_error = 10
@@ -436,9 +441,7 @@ def main():
         'DCC_DC_VMAIL_TEMPLATE', ''
     )
 
-    settings['dcc_adm_host'] = settings['dcc_adm_host'].replace(' ', ',')
-    settings['dcc_adm_host'] = settings['dcc_adm_host'].replace(',,', ',')
-    settings['dcc_adm_host'] = settings['dcc_adm_host'].split(',')
+    settings['dcc_adm_host'] = settings_list(settings['dcc_adm_host'])
 
     loglevel_name = os.environ.get(
         'DCC_LOGLEVEL',
