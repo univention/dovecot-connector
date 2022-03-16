@@ -44,6 +44,7 @@ DEFAULT_DCC_ADM_HOST = '127.0.0.1'
 DEFAULT_DCC_ADM_PORT = 8080
 DEFAULT_DCC_ADM_URI = 'http://{DCC_ADM_HOST}:{DCC_ADM_PORT:d}/doveadm/v1'
 DEFAULT_DCC_ADM_USERNAME = 'doveadm'
+DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES = '68 75'
 DEFAULT_DCC_LOGLEVEL = 'INFO'
 
 APP = "dovecot-connector"
@@ -446,6 +447,17 @@ def main():
     )
 
     settings['dcc_adm_host'] = settings_list(settings['dcc_adm_host'])
+
+    settings['dcc_adm_accpeted_exit_codes'] = os.environ.get(
+        'DCC_ADM_ACCEPTED_EXIT_CODES',
+        DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES,
+    )
+    settings['dcc_adm_accpeted_exit_codes'] = settings_list(
+        settings['dcc_adm_accpeted_exit_codes']
+    )
+    settings['dcc_adm_accpeted_exit_codes'] = map(
+        int, settings['dcc_adm_accpeted_exit_codes']
+    )
 
     loglevel_name = os.environ.get(
         'DCC_LOGLEVEL',
