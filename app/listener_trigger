@@ -361,19 +361,14 @@ def dovecot_submit(dov_adm, fs_delete_cmd, mb_path, settings):
     try:
         dov_adm.submit(fs_delete_cmd)
     except doveadm.DovAdmError as err:
-        if err.exit_code == 75:
+        logger.warning('Submit raised an error: "%s"', err)
+
+        if err.exit_code == 68:
+            logger.warning('User owning "%s" has no mailbox.', mb_path)
+        elif err.exit_code == 75:
             logger.warning('Path "%s" not found.', mb_path)
-        else:
+        if err.exit_code not in settings['dcc_adm_accpeted_exit_codes']:
             logger.error('Submit failed with DovAdmError: %s', err)
-            logger.error(
-                '_response: %s',
-                err._response,  # pylint: disable=protected-access
-            )
-            logger.error(
-                '_msg: %s',
-                err._msg,  # pylint: disable=protected-access
-            )
-            logger.error('exit_code: %s', err.exit_code)
             raise DeleteFailedError('DovAdm.submit failed') from err
     except requests.exceptions.ConnectionError as err:
         logger.error('DovAdm.submit failed with ConnectionError: %s', err)
