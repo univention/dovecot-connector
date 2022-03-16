@@ -351,7 +351,11 @@ def dovecot_delete_path(dcc_adm_uri, settings, mb_path):
     except Exception as err:
         logger.error('FsDeleteCmd failed with Exception: %s', err)
         raise
+    dovecot_submit(dov_adm, fs_delete_cmd, mb_path, settings)
 
+
+def dovecot_submit(dov_adm, fs_delete_cmd, mb_path, settings):
+    """Calls DovAdm.submit and handle error"""
     logger.debug('Calling DovAdm.submit with: %s', fs_delete_cmd.payload)
     try:
         dov_adm.submit(fs_delete_cmd)
