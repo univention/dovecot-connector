@@ -1,6 +1,14 @@
 
 # Dovecot-Connector - Appcenter-Settings-File
 
+[DCC_ADM_ACCEPTED_EXIT_CODES]
+Description = DoveAdm exitCode values which should not stop the processing
+Description[de] = DoveAdm-exitCode-Werte, die nicht zum Abbruch führen
+Show = Install, Settings
+Type = String
+Required = True
+InitialValue = 68 75
+
 [DCC_ADM_HOST]
 Description = The domain-name of the server where DoveAdm has been activated
 Description[de] = Der Domänenname des Servers auf dem DoveAdm aktiviert wurde
