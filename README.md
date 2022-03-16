@@ -15,6 +15,7 @@ The following settings usually can stay with their default values:
 ```
 DCC_ADM_URI='https://{dcc_adm_host}:{dcc_adm_port:d}/doveadm/v1'
 DCC_ADM_USERNAME='doveadm'
+DCC_ADM_ACCEPTED_EXIT_CODES='68 75'
 ```
 
 ### Placeholders
