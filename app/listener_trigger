@@ -367,8 +367,15 @@ def dovecot_submit(dov_adm, fs_delete_cmd, mb_path, settings):
             logger.warning('User owning "%s" has no mailbox.', mb_path)
         elif err.exit_code == 75:
             logger.warning('Path "%s" not found.', mb_path)
-        if err.exit_code not in settings['dcc_adm_accpeted_exit_codes']:
+        logger.debug(
+            'Accepted exitCode values: %s',
+            settings['dcc_adm_accpeted_exit_codes'],
+        )
+        if err.exit_code in settings['dcc_adm_accpeted_exit_codes']:
+            logger.info('Accepted exitCode: %s', err.exit_code)
+        else:
             logger.error('Submit failed with DovAdmError: %s', err)
+            logger.info('Not accepted exitCode: %s', err.exit_code)
             raise DeleteFailedError('DovAdm.submit failed') from err
     except requests.exceptions.ConnectionError as err:
         logger.error('DovAdm.submit failed with ConnectionError: %s', err)
@@ -447,11 +454,23 @@ def main():
         'DCC_ADM_ACCEPTED_EXIT_CODES',
         DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES,
     )
+    logger.error(
+        'DBG dcc_adm_accpeted_exit_codes 1: %s',
+        settings['dcc_adm_accpeted_exit_codes'],
+    )
     settings['dcc_adm_accpeted_exit_codes'] = settings_list(
         settings['dcc_adm_accpeted_exit_codes']
     )
-    settings['dcc_adm_accpeted_exit_codes'] = map(
-        int, settings['dcc_adm_accpeted_exit_codes']
+    logger.error(
+        'DBG dcc_adm_accpeted_exit_codes 2: %s',
+        settings['dcc_adm_accpeted_exit_codes'],
+    )
+    settings['dcc_adm_accpeted_exit_codes'] = set(
+        map(int, settings['dcc_adm_accpeted_exit_codes'])
+    )
+    logger.error(
+        'DBG dcc_adm_accpeted_exit_codes 3: %s',
+        settings['dcc_adm_accpeted_exit_codes'],
     )
 
     loglevel_name = os.environ.get(
