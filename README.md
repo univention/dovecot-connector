@@ -29,11 +29,10 @@ Within the path definition you can make use of the following placeholders that a
 - {domain}: domain part (everything after the `@`-sign) from mailPrimaryAddress
 - {username}: username
 
-Support for string slicing (https://docs.python.org/3/tutorial/introduction.html#strings) is available, so a placeholder definition like
+If required you can make use of single characters out of the above placeholders by addressing them explicitly, that especially makes sense when it comes to mail directories that need to be distributed on the storage, so you may want to use a setup similar to the following example also in order to get rid of the dependency to the maildomain in the file-system:
 ```
-{uuid[0:3]}
+DCC_DC_VMAIL_TEMPLATE='/data/usr/local/dovecot/vmail/{uuid[0]}{uuid[1]}/{uuid}'
 ```
-would return the first three characters of the `entryUUID`.
 
 #### DCC_ADM_URI
 
