@@ -454,23 +454,13 @@ def main():
         'DCC_ADM_ACCEPTED_EXIT_CODES',
         DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES,
     )
-    logger.error(
-        'DBG dcc_adm_accpeted_exit_codes 1: %s',
-        settings['dcc_adm_accpeted_exit_codes'],
-    )
+
     settings['dcc_adm_accpeted_exit_codes'] = settings_list(
         settings['dcc_adm_accpeted_exit_codes']
     )
-    logger.error(
-        'DBG dcc_adm_accpeted_exit_codes 2: %s',
-        settings['dcc_adm_accpeted_exit_codes'],
-    )
+
     settings['dcc_adm_accpeted_exit_codes'] = set(
         map(int, settings['dcc_adm_accpeted_exit_codes'])
-    )
-    logger.error(
-        'DBG dcc_adm_accpeted_exit_codes 3: %s',
-        settings['dcc_adm_accpeted_exit_codes'],
     )
 
     loglevel_name = os.environ.get(
