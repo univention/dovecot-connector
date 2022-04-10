@@ -215,14 +215,6 @@ def handle_single_object(settings, obj):
     if obj.content['udm_object_type'] != 'users/user':
         logger.debug('Ignore object_type: %s', obj.content['udm_object_type'])
         return
-    # just remove the "dcc-test" folder for testing
-    # delete_on_all_hosts(
-    #     settings,
-    #     obj.content['dn'],
-    #     obj.content['id'],
-    #     obj.content['object'],
-    #     test_mode=True,
-    # )
     if obj.was_added():
         logger.debug(
             'handle added: %s (%s)', obj.content['dn'], obj.content['id']
@@ -240,7 +232,6 @@ def handle_single_object(settings, obj):
             obj.content['dn'],
             obj.content['id'],
             obj.old_attributes,
-            test_mode=False,
         )
     else:
         logger.error(
@@ -263,9 +254,7 @@ def build_translation_table(uuid, attributes):
     return translation_table
 
 
-def delete_on_all_hosts(
-    settings, distinguished_name, uuid, attributes, test_mode=False
-):
+def delete_on_all_hosts(settings, distinguished_name, uuid, attributes):
     """Calls dovecot_delete_path for every host found in DCC_ADM_HOST"""
     logger.debug('def delete_on_all_hosts start')
     try:
@@ -288,7 +277,7 @@ def delete_on_all_hosts(
         logger.error('DEBUG attributes %s', attributes)
         return
 
-    mb_path = get_dovecot_user_path(settings, translation_table, test_mode)
+    mb_path = get_dovecot_user_path(settings, translation_table)
     logger.info('Trying to remove the folder "%s" on all servers', mb_path)
 
     for hostname in settings['dcc_adm_host']:
@@ -303,7 +292,7 @@ def delete_on_all_hosts(
     return
 
 
-def get_dovecot_user_path(settings, translation_table, test_mode=False):
+def get_dovecot_user_path(settings, translation_table):
     """Build the user path for FsDeleteCmd"""
     try:
         mb_path = settings['dcc_dc_vmail_template'].format(**translation_table)
@@ -325,8 +314,6 @@ def get_dovecot_user_path(settings, translation_table, test_mode=False):
         raise DeleteFailedError('Path template failed') from err
     if not mb_path:
         raise DeleteFailedError('Path is empty. Set template variable!')
-    if test_mode:
-        mb_path = os.path.join(mb_path, 'mdbox/mailboxes/INBOX/dcc-test')
     return mb_path
 
 
