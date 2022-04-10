@@ -136,6 +136,9 @@ class TriggerObject:
         """
         Whether this object is new. Needs the have read an old file
         for this to give a meaningful response
+
+        Use this with objects_from_files(delete_files=False, move_files=True)
+        Otherwise self._old_loaded is always False!
         """
         logger.debug('def TriggerObject/was_added start')
         if not self._old_loaded:
@@ -146,6 +149,9 @@ class TriggerObject:
         """
         Whether this object was modified. Needs the have read an old
         file for this to give a meaningful response
+
+        Use this with objects_from_files(delete_files=False, move_files=True)
+        Otherwise self._old_loaded is always False!
         """
         logger.debug('def TriggerObject/was_modified start')
         if self.content['object'] is None:
@@ -215,15 +221,7 @@ def handle_single_object(settings, obj):
     if obj.content['udm_object_type'] != 'users/user':
         logger.debug('Ignore object_type: %s', obj.content['udm_object_type'])
         return
-    if obj.was_added():
-        logger.debug(
-            'handle added: %s (%s)', obj.content['dn'], obj.content['id']
-        )
-    elif obj.was_modified():
-        logger.debug(
-            'handle modified: %s (%s)', obj.content['dn'], obj.content['id']
-        )
-    elif obj.was_deleted():
+    if obj.was_deleted():
         logger.debug(
             'handle deleted: %s (%s)', obj.content['dn'], obj.content['id']
         )
@@ -232,12 +230,6 @@ def handle_single_object(settings, obj):
             obj.content['dn'],
             obj.content['id'],
             obj.old_attributes,
-        )
-    else:
-        logger.error(
-            'handle unknown state: %s (%s)',
-            obj.content['dn'],
-            obj.content['id'],
         )
     logger.debug('def handle_single_object end')
     return
@@ -470,7 +462,7 @@ def main():
 
     # run forever and only exit on error
     while True:
-        objs = objects_from_files(delete_files=False, move_files=True)
+        objs = objects_from_files()
         try:
             handle_changed_objects(settings, objs)
         except HandleChangedObjectsError:
