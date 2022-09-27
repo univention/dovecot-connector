@@ -9,6 +9,7 @@ Download an artifact from a different Gitlab project
 from datetime import datetime, timezone
 import os
 import sys
+import urllib.parse
 
 # 3rd-pary
 import requests
@@ -26,7 +27,7 @@ class GitlabApi:
     """Handle REST calls to the Gitlab API"""
     def __init__(self, ca_path, base_url, project_id, token):
         self.base_url = base_url
-        self.project_id = project_id
+        self.project_id = urllib.parse.quote_plus(project_id)
         self.verify = ca_path
         self.session = requests.session()
         self.session.headers.update({'PRIVATE-TOKEN': token})
