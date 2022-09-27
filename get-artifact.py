@@ -39,13 +39,14 @@ class GitlabApi:
         response = self.session.get(pipelines_url, params=params, verify=self.verify)
         content = response.json()
         if response.status_code == 401:
-            print(f"Message: {content['message']}")
+            print(f"Content: {content}")
             raise GitlabError('Bad authorization. Check token!')
         if response.status_code == 404:
-            print(f"Message: {content['message']}")
+            print(f"Content: {content}")
+            print(f"Project ID: {self.project_id}")
             raise GitlabError('Project not found')
         if response.status_code != 200:
-            print(f"Message: {content['message']}")
+            print(f"Message: {content}")
             raise GitlabError(f'Request failed with {response.status_code}')
         pipeline_id = response.json()[0]['id']
         return pipeline_id
