@@ -462,7 +462,7 @@ def main():
 
     # run forever and only exit on error
     while True:
-        objs = objects_from_files()
+        objs = objects_from_files(delete_files=False, move_files=True)
         try:
             handle_changed_objects(settings, objs)
         except HandleChangedObjectsError:
