@@ -40,13 +40,12 @@ download-job:
   before_script:
   - echo "Explicitly skip the default action docker login"
   script:
-  - apk add --no-cache py3-requests
-  - echo "UNIVENTION_CA ${UNIVENTION_CA}"
+  - apk add --no-cache py3-dotenv~=0.19 py3-requests~=2.27
+  - apk list
   - echo "GLDL_API_BASE_URL ${GLDL_API_BASE_URL}"
+  - echo "GLDL_DL_PATH ${GLDL_DL_PATH}"
+  - echo "GLDL_JOB_NAME ${GLDL_JOB_NAME}"
   - echo "GLDL_PROJECT_ID ${GLDL_PROJECT_ID}"
-  - export GLDL_CA_PATH="${UNIVENTION_CA}"
-  - echo "GLDL_CA_PATH ${GLDL_CA_PATH}"
-  - export GLDL_DL_PATH="python-doveadm.zip"
   - python3 get-artifact.py
   artifacts:
     paths:
