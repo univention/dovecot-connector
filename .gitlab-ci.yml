@@ -34,7 +34,7 @@ default:
   - docker
 
 download-job:
-  image: ${DOCKERHUB_CACHE}library/alpine:3.15.0
+  image: ${DOCKERHUB_CACHE}library/alpine:3.16.2
   stage: download-stage
   interruptible: true
   before_script:
