@@ -15,13 +15,19 @@ The script can build the image and push the code directly to a remote ucs-server
 4. Get the doveadm artifact
 
     1. Download from Gitlab with the helper-script
+      It needs five variables, either as env-var or via .env-file.
       ```
-      export GLDL_CA_PATH=/etc/docker/certs.d/artifacts.knut.univention.de/CA.crt
-      export GLDL_DL_PATH="python-doveadm.zip"
-      export GLDL_PROJECT_ID='univention%2Fcustomers%2Fdataport%2Fupx%2Fpython-doveadm'
-      export GLDL_TOKEN='<secret-gitlab-access-token>'
+      export GLDL_API_BASE_URL = 'https://git.knut.univention.de/api/v4'
+      export GLDL_DL_PATH='python-doveadm.zip'
+      export GLDL_PROJECT_ID='univention/customers/dataport/upx/python-doveadm'
+      export GLDL_TOKEN="<secret-gitlab-access-token>"
+      export GLDL_JOB_NAME="build-job"
       python3 get-artifact.py
       ````
+      Optionally an alternate ca-cert-file can be used with:
+      ```
+      export GLDL_CA_PATH=''/etc/ssl/certs/ca-certificates.crt''
+      ```
 
     2. Download from Gitlab with a Webbrowser
       Find the latest successful run off the main-branch, by clicking on [Pipelines][2].
