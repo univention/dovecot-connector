@@ -3,4 +3,4 @@ doveadm_password = secret
 ucs_host = 127.0.0.1
 ucs_admin_password = secret
 image_name = dovecot-connector
-image_tag = 1.0.0
+image_tag = 1.0.1

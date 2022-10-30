@@ -7,7 +7,7 @@ ID = dovecot-connector
 
 Code = 3M
 
-Version = 1.0.0
+Version = 1.0.1
 
 Name = Dovecot Connector
 
@@ -33,11 +33,11 @@ ListenerUDMModules = users/user
 
 DockerShellCommand = /bin/ash
 
-DockerImage = docker.software-univention.de/dovecot-connector:1.0.0
+# Test-Appcenter
+DockerImage = docker-registry.knut.univention.de/dovecot-connector:1.0.1
 
-#DockerImage = docker.software-univention.de/ox-connector:2.0.0
-#DockerImage = artifacts.knut.univention.de/upx/dovecot-connector:latest
-#DockerImage = docker.software-univention.de/dovecot-connector:latest
+# Production-Appcenter
+#DockerImage = docker.software-univention.de/dovecot-connector:1.0.1
 
 # Path to script inside the container (absolute)
 DockerScriptConfigure = /tmp/dovecot-connector.configure
