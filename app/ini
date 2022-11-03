@@ -33,8 +33,11 @@ ListenerUDMModules = users/user
 
 DockerShellCommand = /bin/ash
 
-# Test-Appcenter
-DockerImage = docker-registry.knut.univention.de/dovecot-connector:1.0.1
+# Test-Appcenter internal repo
+#DockerImage = docker-registry.knut.univention.de/dovecot-connector:1.0.1
+
+# Test-Appcenter public repo
+DockerImage = registry.souvap-univention.de/souvap/tooling/images/dovecot-connector:1.0.1
 
 # Production-Appcenter
 #DockerImage = docker.software-univention.de/dovecot-connector:1.0.1
