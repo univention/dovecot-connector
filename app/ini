@@ -1,4 +1,3 @@
-
 # Dovecot-Connector - Appcenter-ini-file
 
 [Application]
@@ -74,10 +73,10 @@ LongDescription = <p>
 	<p>
 	</p>
 	<p>
-		Um diese App zu nutzen, brauchen Sie eine entfernte Dovecot-Installation. Typischerweise wird dies kein UCS-System sein.
+		Um diese App zu nutzen, brauchen Sie eine entfernte Dovecot-Installation, die Zugriff auf den <i>doveadm port</i> erlaubt und das Passwort für den <i>doveadm</i> Benutzer. 
 	</p>
 	<p>
-		Es gibt zwei Voraussetzungen, damit die App funktionieren kann: Die entfernte Dovecot-Installation muss Zugriff auf den <i>doveadm port</i> erlauben und Sie wollen wahscheinlich die unverschlüsselte doveadm-Verbindung durch einen sicheren Tunnel leiten.
+		Sollte die http API des doveadm nicht per https zu erreichen sein, ist die Verbindung anderweitig abzusichern, z.B. durch die Nutzung eines verschlüsselten Tunnels.
 		<br>
 	</p>
 
