@@ -12,8 +12,8 @@ import sys
 import urllib.parse
 
 # 3rd-party
-import dotenv
-import requests
+import dotenv  # pip install python-dotenv
+import requests  # pip install requests
 
 DEFAULT_API_BASE_URL = 'https://gitlab.com/api/v4'
 DEFAULT_BRANCH = 'main'
