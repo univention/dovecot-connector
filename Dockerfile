@@ -85,12 +85,12 @@ RUN \
   pip install /pkg-temp/*.whl && \
   rm -r /pkg-temp
 
-COPY init /sbin/init
+COPY init.py /sbin/init.py
 COPY LICENSE /usr/local/share/dovecot-connector/LICENSE
 RUN chmod 0555 /sbin/init
 
 WORKDIR /dovecotp
 
-CMD ["/sbin/init"]
+CMD ["/usr/bin/python3", "-u", "/sbin/init.py"]
 
 # [EOF]
