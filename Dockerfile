@@ -87,7 +87,7 @@ RUN \
 
 COPY init.py /sbin/init.py
 COPY LICENSE /usr/local/share/dovecot-connector/LICENSE
-RUN chmod 0555 /sbin/init
+RUN chmod 0555 /sbin/init.py
 
 WORKDIR /dovecotp
 
