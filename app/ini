@@ -63,6 +63,8 @@ LongDescription = <p>
 
 Logo = logo.svg
 
+ListenerUDMVersion = 1
+
 [de]
 
 Description = UCS-Benutzer-Löschungen nach Dovecot synchronisieren
