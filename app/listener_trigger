@@ -348,9 +348,9 @@ def dovecot_submit(dov_adm, fs_delete_cmd, mb_path, settings):
             logger.warning('Path "%s" not found.', mb_path)
         logger.debug(
             'Accepted exitCode values: %s',
-            settings['dcc_adm_accpeted_exit_codes'],
+            settings['dcc_adm_accepted_exit_codes'],
         )
-        if err.exit_code in settings['dcc_adm_accpeted_exit_codes']:
+        if err.exit_code in settings['dcc_adm_accepted_exit_codes']:
             logger.info('Accepted exitCode: %s', err.exit_code)
         else:
             logger.error('Submit failed with DovAdmError: %s', err)
@@ -429,17 +429,17 @@ def main():
 
     settings['dcc_adm_host'] = settings_list(settings['dcc_adm_host'])
 
-    settings['dcc_adm_accpeted_exit_codes'] = os.environ.get(
+    settings['dcc_adm_accepted_exit_codes'] = os.environ.get(
         'DCC_ADM_ACCEPTED_EXIT_CODES',
         DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES,
     )
 
-    settings['dcc_adm_accpeted_exit_codes'] = settings_list(
-        settings['dcc_adm_accpeted_exit_codes']
+    settings['dcc_adm_accepted_exit_codes'] = settings_list(
+        settings['dcc_adm_accepted_exit_codes']
     )
 
-    settings['dcc_adm_accpeted_exit_codes'] = set(
-        map(int, settings['dcc_adm_accpeted_exit_codes'])
+    settings['dcc_adm_accepted_exit_codes'] = set(
+        map(int, settings['dcc_adm_accepted_exit_codes'])
     )
 
     loglevel_name = os.environ.get(
