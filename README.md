@@ -98,3 +98,20 @@ Install the app: `univention-app install dovecot-connector --noninteractive --pa
 ### Mount custom paths to the container
 
 `univention-app dev-set dovecot-connector DockerVolumes=/host-path:/in-container-path,/test:/test`
+
+
+## SouvAP
+
+In this repository you can also find an image on `Dockerfile.souvap` which
+consists of the same code shipped on Univention AppCenter with some glue code
+to make it work with [Univention Directory Listener](https://docs.software-univention.de/developer-reference/5.0/en/listener/index.html),since [AppCenter provisioning](https://docs.software-univention.de/app-center/5.0/en/identity_management.html#provisioning)
+is not available in the SouvAP environment.
+
+### Development setup
+
+Please look into the [base container image](https://git.knut.univention.de/univention/customers/dataport/upx/container-listener-base#preparation)
+on which Univention Directory Listener is installed. An ansible playbook is
+provided there to ease the development setup.
+
+> Note a `docker-compose.override.yaml` will be created, as well as a `secret`
+and a `ssl` folder. All of them are needed for development on this repository.

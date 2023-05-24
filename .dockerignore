@@ -3,3 +3,5 @@
 !/LICENSE
 !/python-doveadm.zip
 !/univention-dovecot-connector
+!/app/listener_trigger
+!/listener_handler.py

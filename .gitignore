@@ -3,3 +3,8 @@
 /python-doveadm.zip
 /univention-appcenter-control
 /venv
+/secret
+/ssl
+/ansible/inventory/*.yaml
+/.env.souvap
+/docker-compose.override.yaml

@@ -1,0 +1,79 @@
+# syntax=docker/dockerfile:1
+
+ARG DOCKERHUB_CACHE=""
+
+
+###############################################################################
+FROM ${DOCKERHUB_CACHE}library/alpine:3.12 AS dovecot-connector-alpine-build
+SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
+
+ARG version
+
+# Build a Wheel-Package for univention-dovecot-connector
+WORKDIR /build/univention-dovecot-connector
+
+RUN \
+  apk add --no-cache python3 py3-pip && \
+  python3 -m venv --system-site-packages /build/venv && \
+  /build/venv/bin/python3 -m pip install --upgrade pip && \
+  /build/venv/bin/pip3 install build
+
+COPY univention-dovecot-connector /build/univention-dovecot-connector
+RUN \
+  export DOVECOT_PROVISIONING_VERSION="$version" && \
+  /build/venv/bin/python3 -m build && \
+  mkdir /pippkg && \
+  cp -a /build/univention-dovecot-connector/dist/*.whl /pippkg/ && \
+  rm -rf /build/
+
+
+###############################################################################
+FROM gitregistry.knut.univention.de/univention/customers/dataport/upx/container-listener-base/listener-base-debug:latest AS final
+SHELL ["/bin/sh", "-eux", "-c"]
+
+ARG version
+
+LABEL \
+  "description"="UCS dovecot provisioning app" \
+  "version"="$version"
+
+RUN \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive \
+    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
+      # for dbm.gnu useed by listener_trigger
+      python3-gdbm \
+      # for the python3 executable \
+      python3-minimal \
+      # for the pip3 executable \
+      python3-pip \
+      # for python-doveadm
+      python3-requests \
+      unzip
+
+# install python-doveadm
+WORKDIR /pkg-temp/python-doveadm
+COPY python-doveadm.zip .
+RUN \
+  ls -la && \
+  unzip -d . python-doveadm.zip && \
+  ls -la && \
+  dpkg -i *.deb && \
+  rm -rf /pkg-temp/
+
+# install dovecot-connector
+WORKDIR /pkg-temp
+COPY --from=dovecot-connector-alpine-build /pippkg/*.whl /pkg-temp/
+RUN \
+  pip3 install /pkg-temp/*.whl && \
+  rm -r /pkg-temp
+COPY LICENSE /usr/local/share/dovecot-connector/LICENSE
+
+# """install""" appcenter listener script to use as package
+COPY app/listener_trigger /usr/lib/python3/dist-packages/listener_trigger.py
+RUN chmod 0555 /usr/lib/python3/dist-packages/listener_trigger.py
+
+
+COPY ./listener_handler.py /usr/lib/univention-directory-listener/system/
+
+# [EOF]

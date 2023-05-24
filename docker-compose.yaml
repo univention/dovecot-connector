@@ -1,0 +1,28 @@
+---
+version: "3.9"
+services:
+  dovecot-connector:
+    platform: linux/amd64
+    build:
+      context: ./
+      dockerfile: Dockerfile.souvap
+      args:
+        - version=1.0.2
+    env_file: .env.souvap
+    volumes:
+      - listener-data:/var/lib/univention-directory-listener/:rw
+    secrets:
+      - ca_cert
+      - cert_pem
+      - ldap_secret
+
+secrets:
+  ca_cert:
+    file: ssl/certs/CAcert.pem
+  cert_pem:
+    file: ssl/certs/cert.pem
+  ldap_secret:
+    file: secret/ldap.secret
+volumes:
+  listener-data:
+...
