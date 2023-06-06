@@ -38,9 +38,10 @@ from pathlib import Path
 import listener_trigger
 import json
 
+
 DEFAULT_DCC_ADM_HOST = '127.0.0.1'
 DEFAULT_DCC_ADM_PORT = 8080
-DEFAULT_DCC_ADM_URI = 'http://{DCC_ADM_HOST}:{DCC_ADM_PORT:d}/doveadm/v1'
+DEFAULT_DCC_ADM_URI = 'http://{dcc_adm_host}:{dcc_adm_port:d}/doveadm/v1'
 DEFAULT_DCC_ADM_USERNAME = 'doveadm'
 DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES = '68 75'
 DEFAULT_DCC_LOGLEVEL = 'INFO'
@@ -52,7 +53,7 @@ settings = {
     "dcc_adm_port": os.environ.get("DCC_ADM_PORT", DEFAULT_DCC_ADM_PORT),
     "dcc_adm_username": os.environ.get("DCC_ADM_USERNAME", DEFAULT_DCC_ADM_USERNAME),
     "dcc_adm_password": os.environ.get("DCC_ADM_PASSWORD", ""),
-    "dcc_adm_vmail_template": os.environ.get("DCC_ADM_VMAIL_TEMPLATE", ""),
+    "dcc_dc_vmail_template": os.environ.get("DCC_DC_VMAIL_TEMPLATE", ""),
     "dcc_adm_accepted_exit_codes": set(map(
         int,
         listener_trigger.settings_list(
@@ -82,14 +83,17 @@ class DovecotConnectorListenerModule(ListenerModuleHandler):
     def remove(self, dn, old):
         self.logger.info('[ remove ] dn: %r', dn)
         try:
+            old["username"] = old["krb5PrincipalName"][0].decode("utf-8").rsplit("@", 1)[0].lower()
+            old["mailPrimaryAddress"] = old["krb5PrincipalName"][0].decode("utf-8").lower()
             listener_trigger.delete_on_all_hosts(
                 settings,
                 dn,
                 old["entryUUID"],
                 old
             )
+            self.logger.info('[ remove ] success on mailbox deletion %r', dn)
         except Exception as e:
-            self.logger.error("Error while deleting mailbox: %s", e)
+            self.logger.error("Error while deleting mailbox: %r", e)
         
 
     class Configuration(ListenerModuleHandler.Configuration):

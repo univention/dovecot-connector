@@ -17,7 +17,8 @@ provisioning in mind, SouvAP has no Univention AppCenter.
 
 > SouvAP, on the other hand has access to
 > [Univention Directory Listener](https://docs.software-univention.de/developer-reference/5.0/en/listener/index.html)
-> , which can be adapted to work with the base code of the `dovecot-connector`.
+> , which can be adapted to work with the base code of the `dovecot-connector`
+and runs on a container continuously.
 
 
 ### Variables
@@ -39,6 +40,15 @@ In the file `.env.souvap.example` you will find some variables you can change.
     > Details [here](https://doc.dovecot.org/configuration_manual/mail_location/#mail-location-settings)
 * `DCC_ADM_ACCEPTED_EXIT_CODES`: [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/)
 * `DCC_LOGLEVEL`: DEBUG
+
+
+### SouvAP development setup
+
+1. Run the steps on `README.develop.md` to get the `python-doveadm.zip` package.
+2. Run the steps on `README.md` on the [listener-container-base](https://git.knut.univention.de/univention/customers/dataport/upx/container-listener-base) and ensure `ssl`, `secret` and `docker-compose.override.yaml` have been created.
+3. Configure additional domains if needed under the `docker-compose.override.yaml` to ensure doveadm HTTP API is reachable from within the container.
+4. Happy development!
+
 
 ### Frequent issues
 
@@ -92,3 +102,16 @@ the artifacts may have expired and the zip file containing the package may not
 be downloaded.
 1. Rerun the pipeline on python-doveadm repository.
 2. Fix any failing tests if there are errors.
+
+##### No connection from dovecot-connector container to doveadm HTTP API
+
+1. Make sure you have a `docker-compose.override.yaml` file on the root folder. Else, you can find more details on how to get it on the [listener-container-base repo](https://git.knut.univention.de/univention/customers/dataport/upx/container-listener-base) and its playbooks.
+
+> For this case, you may try the following command:
+```
+curl -u doveadm:<some_pass> http://domain.example.org:8080/doveadm/v1
+```
+or try out a full command for more specific cases
+```
+curl -u doveadm:<some_pass> http://domain.example.org:8080/doveadm/v1 -X POST -H "Content-Type: application/json" -d '[["fsDelete",{"recursive":true,"maxParallel":1,"fsDriver":"posix","fsArgs":"dirs","path":"/var/spool/dovecot/private/<some_domain>/<some_user>"},"tag1"]]'
+```
