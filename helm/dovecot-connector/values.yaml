@@ -1,0 +1,92 @@
+---
+# Default values for dovecot-connector.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## Global values
+affinity: {}
+environment: {}
+fullnameOverride: ""
+nameOverride: ""
+nodeSelector: {}
+podAnnotations: {}
+podSecurityContext: {}
+replicaCount: 1
+securityContext: {}
+tolerations: []
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+
+
+dovecot_connector:
+  domainName: "example.org"
+  ldapPort: "389"
+  ldapHost: "domain.example.org"
+  # -- Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set
+  ldapHostIp: ""
+  ldapBaseDn: "dc=example,dc=org"
+  ldapHostDn: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
+  # -- Defaults to "ldap_host" if not set.
+  notifierServer: "domain.example.org"
+  debugLevel: "5"
+  # -- LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine.
+  authLdapSecret: ""
+  ldapBindSecret: "/run/secrets/ldap_secret"
+  # -- CA certificate of UCS machine, base64 encoded.
+  caCert: ""
+  caCertFile: "/run/secrets/ca_cert"
+  # -- Certificate of the ucs machine, base64 encoded.
+  certPem: ""
+  certPemFile: "/run/secrets/cert_pem"
+  # -- Template for the python dovecot-connector script.
+  dccAdmUri: "http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"
+  # -- Host where the doveadm HTTP API is hosted.
+  dccAdmHost: "dovecot.example.org"
+  # -- Host where the doveadm HTTP API is exposed.
+  dccAdmPort: "80"
+  # -- doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`.
+  dccAdmUsername: "doveadm"
+  # -- doveadm password, usually under `doveadm_password` on the `dovecot.conf` file.
+  dccAdmPassword: "somepassword"
+  # -- doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`.
+  dccDcVmailTemplate: "/var/spool/dovecot/private/{domain}/{username}"
+  # -- [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/)
+  dccAdmAcceptedExitCodes: "0 2 68 75"
+  # -- Log level
+  dccLoglevel: "DEBUG"
+
+# -- Kubernetes ingress
+ingress:
+  # -- Set this to `true` in order to enable the installation on Ingress related objects.
+  enabled: false
+
+## Docker image
+image:
+  registry: "registry.souvap-univention.de"
+  repository: "souvap/tooling/images/dovecot-connector"
+  tag: "1.0.2"
+  imagePullPolicy: "Always"
+
+## Container deployment probes
+probes:
+  liveness:
+    enabled: false
+
+  readiness:
+    enabled: false
+
+## Deployment resources
+resources: {}
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+

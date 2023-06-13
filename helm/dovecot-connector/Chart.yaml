@@ -1,0 +1,18 @@
+---
+apiVersion: v2
+type: application
+name: dovecot-connector
+description: A Helm chart for the dovecot-connector
+home: https://www.univention.de/
+
+# Chart version
+# Apply Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# dovecot-connector version
+appVersion: 1.0.2
+
+dependencies:
+  - name: "common"
+    repository: "oci://gitregistry.knut.univention.de/univention/customers/dataport/upx/common-helm/helm"
+    version: "^0.1.0"

@@ -32,11 +32,13 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-from univention.listener.handler import ListenerModuleHandler
+import json
 import os
 from pathlib import Path
+
+from univention.listener.handler import ListenerModuleHandler
+
 import listener_trigger
-import json
 
 
 DEFAULT_DCC_ADM_HOST = '127.0.0.1'
@@ -83,12 +85,12 @@ class DovecotConnectorListenerModule(ListenerModuleHandler):
     def remove(self, dn, old):
         self.logger.info('[ remove ] dn: %r', dn)
         try:
-            old["username"] = old["krb5PrincipalName"][0].decode("utf-8").rsplit("@", 1)[0].lower()
-            old["mailPrimaryAddress"] = old["krb5PrincipalName"][0].decode("utf-8").lower()
+            old["username"] = old["uid"][0].decode("utf-8")
+            old["mailPrimaryAddress"] = old["mailPrimaryAddress"][0].decode("utf-8")
             listener_trigger.delete_on_all_hosts(
                 settings,
                 dn,
-                old["entryUUID"],
+                old["entryUUID"][0].decode("utf-8"),
                 old
             )
             self.logger.info('[ remove ] success on mailbox deletion %r', dn)

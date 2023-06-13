@@ -49,6 +49,14 @@ In the file `.env.souvap.example` you will find some variables you can change.
 3. Configure additional domains if needed under the `docker-compose.override.yaml` to ensure doveadm HTTP API is reachable from within the container.
 4. Happy development!
 
+### Known issues
+
+If dovecot is using the `user` part on `user@example.org` there seems to be
+currently no way of removing its mailbox, unless the `user` is also the LDAP uid.
+
+> Example: my user on ldap is `jnice` but my email id `john@example.org`, my
+> mailbox could be located under `john` folder, thus not being deleted by
+> any possible template on `DCC_DC_VMAIL_TEMPLATE` variables.
 
 ### Frequent issues
 
