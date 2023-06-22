@@ -39,7 +39,7 @@ echo "The app version string used for the upload is '${APP_VERSION_STRING}'."
 if ! [[ -e "${HOME}/.univention-appcenter-user" ]] || ! [[ -e "${HOME}/.univention-appcenter-pwd" ]]; then
   echo -e "\nTo upload the files to the test appcenter you will now be asked for your"
   echo "username and password. Hint: create ~/.univention-appcenter-user and"
-  echo "~/.univention-appcenter-pwd to skip the question."
+  echo " ~/.univention-appcenter-pwd to skip the question."
 fi
 
 # upload to univention app provider portal
@@ -51,4 +51,4 @@ find app/ -type f | sort
 read -n1 -r -p "Press any key to continue or Ctrl-C to abort."
 echo
 
-./univention-appcenter-control upload "${APP_VERSION_STRING}" $(find app/ -type f | sort)
+./univention-appcenter-control upload "${APP_VERSION_STRING}" "$(find app/ -type f | sort)"

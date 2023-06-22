@@ -32,9 +32,7 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-import json
 import os
-from pathlib import Path
 
 from univention.listener.handler import ListenerModuleHandler
 
@@ -51,17 +49,19 @@ DEFAULT_DCC_LOGLEVEL = 'INFO'
 # The following settings are this way for compatibility reasons
 settings = {
     "dcc_adm_uri": os.environ.get("DCC_ADM_URI", DEFAULT_DCC_ADM_URI),
-    "dcc_adm_host": listener_trigger.settings_list(os.environ.get("DCC_ADM_HOST", DEFAULT_DCC_ADM_HOST)),
+    "dcc_adm_host": listener_trigger.settings_list(
+        os.environ.get("DCC_ADM_HOST", DEFAULT_DCC_ADM_HOST)),
     "dcc_adm_port": os.environ.get("DCC_ADM_PORT", DEFAULT_DCC_ADM_PORT),
-    "dcc_adm_username": os.environ.get("DCC_ADM_USERNAME", DEFAULT_DCC_ADM_USERNAME),
+    "dcc_adm_username": os.environ.get(
+        "DCC_ADM_USERNAME", DEFAULT_DCC_ADM_USERNAME),
     "dcc_adm_password": os.environ.get("DCC_ADM_PASSWORD", ""),
     "dcc_dc_vmail_template": os.environ.get("DCC_DC_VMAIL_TEMPLATE", ""),
     "dcc_adm_accepted_exit_codes": set(map(
         int,
         listener_trigger.settings_list(
-        os.environ.get(
-            "DCC_ADM_ACCEPTED_EXIT_CODES",
-            DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES
+            os.environ.get(
+                "DCC_ADM_ACCEPTED_EXIT_CODES",
+                DEFAULT_DCC_ADM_ACCEPTED_EXIT_CODES
             )
         ))),
 }
@@ -86,7 +86,8 @@ class DovecotConnectorListenerModule(ListenerModuleHandler):
         self.logger.info('[ remove ] dn: %r', dn)
         try:
             old["username"] = old["uid"][0].decode("utf-8")
-            old["mailPrimaryAddress"] = old["mailPrimaryAddress"][0].decode("utf-8")
+            old["mailPrimaryAddress"] = old["mailPrimaryAddress"][0].decode(
+                "utf-8")
             listener_trigger.delete_on_all_hosts(
                 settings,
                 dn,
@@ -96,7 +97,6 @@ class DovecotConnectorListenerModule(ListenerModuleHandler):
             self.logger.info('[ remove ] success on mailbox deletion %r', dn)
         except Exception as e:
             self.logger.error("Error while deleting mailbox: %r", e)
-        
 
     class Configuration(ListenerModuleHandler.Configuration):
         name = name

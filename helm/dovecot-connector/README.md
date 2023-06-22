@@ -10,13 +10,17 @@ A Helm chart for the dovecot-connector
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | common | ^2.2.2 |
+| oci://gitregistry.knut.univention.de/univention/customers/dataport/upx/common-helm/helm | common | ^0.1.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
+| autoscaling.enabled | bool | `false` |  |
+| autoscaling.maxReplicas | int | `100` |  |
+| autoscaling.minReplicas | int | `1` |  |
+| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | dovecot_connector.authLdapSecret | string | `""` | LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine. |
 | dovecot_connector.caCert | string | `""` | CA certificate of UCS machine, base64 encoded. |
 | dovecot_connector.caCertFile | string | `"/run/secrets/ca_cert"` |  |
@@ -36,7 +40,7 @@ A Helm chart for the dovecot-connector
 | dovecot_connector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` |  |
 | dovecot_connector.ldapHost | string | `"domain.example.org"` |  |
 | dovecot_connector.ldapHostDn | string | `"cn=domain,cn=dc,cn=computers,dc=example,dc=org"` |  |
-| dovecot_connector.ldapHostIp | string | `""` | Will add a mapping from "ldap_host" to "ldap_host_ip" into "/etc/hosts" if set |
+| dovecot_connector.ldapHostIp | string | `""` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
 | dovecot_connector.ldapPort | string | `"389"` |  |
 | dovecot_connector.notifierServer | string | `"domain.example.org"` | Defaults to "ldap_host" if not set. |
 | environment | object | `{}` |  |
@@ -44,7 +48,7 @@ A Helm chart for the dovecot-connector
 | image.imagePullPolicy | string | `"Always"` |  |
 | image.registry | string | `"registry.souvap-univention.de"` |  |
 | image.repository | string | `"souvap/tooling/images/dovecot-connector"` |  |
-| image.tag | string | `"standalone-1.0.2"` |  |
+| image.tag | string | `"1.0.2"` |  |
 | ingress | object | `{"enabled":false}` | Kubernetes ingress |
 | ingress.enabled | bool | `false` | Set this to `true` in order to enable the installation on Ingress related objects. |
 | nameOverride | string | `""` |  |
@@ -54,10 +58,9 @@ A Helm chart for the dovecot-connector
 | probes.liveness.enabled | bool | `false` |  |
 | probes.readiness.enabled | bool | `false` |  |
 | replicaCount | int | `1` |  |
-| resources.limits.cpu | string | `"4"` |  |
-| resources.limits.memory | string | `"4Gi"` |  |
-| resources.requests.cpu | string | `"250m"` |  |
-| resources.requests.memory | string | `"512Mi"` |  |
+| resources | object | `{}` |  |
 | securityContext | object | `{}` |  |
-| service.enabled | bool | `false` |  |
+| serviceAccount.annotations | object | `{}` |  |
+| serviceAccount.create | bool | `true` |  |
+| serviceAccount.name | string | `""` |  |
 | tolerations | list | `[]` |  |

@@ -1,40 +1,44 @@
 ---
 
 stages:
-- download-stage
-- build-stage
-- publish-stage
+- lint
+- prepare
+- build
+- test
+- package
+- publish
 
 variables:
-  DOCKER_HOST: tcp://docker:2375
-  DOCKER_TLS_CERTDIR: ''
-  DOCKERHUB_CACHE: ${UV_HOST_HARBOR}/dockerhub_proxy_cache/
-  LANG: C.UTF-8
-  UV_APP_VERSION: 1.0.2
-  UV_HOST_HARBOR: artifacts.knut.univention.de
-  UV_HOST_INT: docker-registry.knut.univention.de
+  SOUVAP_HELM_PROJECT_ID: 129
+  SOUVAP_API_V4_URL: https://gitlab.souvap-univention.de/api/v4
+  SOUVAP_DOCKER_ACCESS_USER: gitlab-ci-knut
+  SOUVAP_HELM_ACCESS_USER: gitlab-ci-knut
+  SOUVAP_DOCKER_ACCESS_TOKEN: ${SOUVAP_REGISTRY_TOKEN}
   SOUVAP_REGISTRY_HOST: registry.souvap-univention.de
-  UV_IMAGE_NAME: dovecot-connector
-  UV_PATH_HARBOR: ${UV_HOST_HARBOR}/upx/${UV_IMAGE_NAME}
-  UV_PATH_INT: ${UV_HOST_INT}/${UV_IMAGE_NAME}
-  SOUVAP_REGISTRY_PATH: ${SOUVAP_REGISTRY_HOST}/souvap/tooling/images/${UV_IMAGE_NAME}
+  SOUVAP_REGISTRY_PATH: souvap/tooling/images/dovecot-connector
+  SOUVAP_REGISTRY_REPO: ${SOUVAP_REGISTRY_HOST}/${SOUVAP_REGISTRY_PATH}
 
-default:
+
+include:
+  - project: univention/customers/dataport/upx/common-ci
+    file:
+      - defaults/souvap-workflow.yaml
+      - templates/souvap.yaml
+      - templates/kaniko.yaml
+      - jobs/lint-pre-commit.yaml
+      - jobs/package-and-publish-helm-charts.yaml
+
+
+lint-pre-commit:
   before_script:
-  - mkdir -p "${HOME}/.docker/"
-  - echo "${DOCKER_AUTH_CONFIG}" > "${HOME}/.docker/config.json"
+    # Compose lint would fail without the referenced env files
+    - cp .env.example .env
+    - cp .env.souvap.example .env.souvap
 
-.dind:
-  image: ${DOCKERHUB_CACHE}library/docker:20.10.12
-  services:
-  - name: ${UV_HOST_INT}/ucs/docker:dind
-    alias: docker
-  tags:
-  - docker
 
-download-job:
+download-python-doveadm:
   image: ${DOCKERHUB_CACHE}library/alpine:3.16.2
-  stage: download-stage
+  stage: prepare
   interruptible: true
   before_script:
   - echo "Explicitly skip the default action docker login"
@@ -51,91 +55,27 @@ download-job:
     - python-doveadm.zip
     expire_in: 1 week
 
-# build docker image and push SHA to harbor
-build-job:
-  stage: build-stage
-  interruptible: true
-  extends: .dind
-  dependencies:
-  - download-job
-  script:
-  - docker --version
-  - apk add git
-  - git --version
-  - docker build
-      --pull
-      --build-arg "version=${UV_APP_VERSION}"
-      --tag "${UV_IMAGE_NAME}:${CI_COMMIT_SHA}"
-      --file Dockerfile
-      .
-
-  # push sha to uv-internal repo
-  - docker tag
-      "${UV_IMAGE_NAME}:${CI_COMMIT_SHA}"
-      "${UV_PATH_INT}:${CI_COMMIT_SHA}"
-  - docker push "${UV_PATH_INT}:${CI_COMMIT_SHA}"
-
-  # push sha to harbor repo
-  - docker tag
-      "${UV_IMAGE_NAME}:${CI_COMMIT_SHA}"
-      "${UV_PATH_HARBOR}:${CI_COMMIT_SHA}"
-  - docker push "${UV_PATH_HARBOR}:${CI_COMMIT_SHA}"
-
-  # push sha to souvap
-  - mkdir -p "${HOME}/.docker/"
-  - echo "${SOUVAP_DOCKER_AUTH_CONFIG}" > "${HOME}/.docker/config.json"
-  - docker tag
-      "${UV_IMAGE_NAME}:${CI_COMMIT_SHA}"
-      "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_SHA}"
-  - docker push "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_SHA}"
-
-
-# push git-tag-name to harbor docker repo
-push-tag-harbor-job:
-  stage: publish-stage
-  only:
-  - tags
-  extends: .dind
-  script:
-  - docker pull "${UV_PATH_HARBOR}:${CI_COMMIT_SHA}"
-  - docker tag
-      "${UV_PATH_HARBOR}:${CI_COMMIT_SHA}"
-      "${UV_PATH_HARBOR}:${CI_COMMIT_REF_NAME}"
-  - docker push "${UV_PATH_HARBOR}:${CI_COMMIT_REF_NAME}"
-
-# push git-tag-name to internal docker repo
-push-tag-intern-job:
-  stage: publish-stage
+build-standalone-job:
+  stage: build
+  needs:
+    - job: download-python-doveadm
+  extends: .kaniko
   variables:
-    GIT_STRATEGY: none
-  only:
-  - tags
-  extends: .dind
-  before_script:
-  - echo "Explicitly skip the default action docker login"
-  script:
-  - docker pull "${UV_PATH_INT}:${CI_COMMIT_SHA}"
-  - docker tag
-      "${UV_PATH_INT}:${CI_COMMIT_SHA}"
-      "${UV_PATH_INT}:${CI_COMMIT_REF_NAME}"
-  - docker push "${UV_PATH_INT}:${CI_COMMIT_REF_NAME}"
+    DOCKERFILE_PATH: "Dockerfile.souvap"
+    KANIKO_ARGS: "--build-arg version=$UV_APP_VERSION"
+    CI_REGISTRY_IMAGE: "$CI_REGISTRY_IMAGE"
 
-push-tag-souvap-job:
-  stage: publish-stage
+push-image-souvap-standalone-job:
+  stage: publish
+  needs:
+    - job: build-standalone-job
+  extends: .push-image-souvap
   variables:
-    GIT_STRATEGY: none
-  only:
-  - tags
-  extends: .dind
-  before_script:
-  # - echo "Explicitly skip the default action docker login"
-  - mkdir -p "${HOME}/.docker/"
-  - echo "${SOUVAP_DOCKER_AUTH_CONFIG}" > "${HOME}/.docker/config.json"
-  script:
-  - docker pull "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_SHA}"
-  - docker tag
-      "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_SHA}"
-      "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_REF_NAME}"
-  - docker push "${SOUVAP_REGISTRY_PATH}:${CI_COMMIT_REF_NAME}"
+    CI_REGISTRY_IMAGE: "$CI_REGISTRY_IMAGE"
+    SOUVAP_IMAGE_NAME: "dovecot-connector"
+
+
+publish-helm-charts-souvap:
+  extends: .publish-helm-charts-souvap
 
 ...

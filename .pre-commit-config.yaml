@@ -1,0 +1,59 @@
+---
+
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+exclude: 'patches'
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v2.4.0
+  hooks:
+  # "Check for added large files"
+  - id: check-added-large-files
+  # "Check for merge conflicts"
+  - id: check-merge-conflict
+  # "Check Yaml"
+  - id: check-yaml
+    exclude: ^helm/.+/templates/
+  # "Fix End of Files"
+  - id: end-of-file-fixer
+    exclude: ^helm/.+/README.md$
+  # "Fix python encoding pragma"
+  - id: fix-encoding-pragma
+  # "Trim Trailing Whitespace"
+  - id: trailing-whitespace
+  # flake8
+  - id: flake8
+
+# "Shell Syntax Check"
+# This is a wrapper for shellcheck as long as
+# shellcheck doesn't have it's own .pre-commit-hooks.yaml
+# https://github.com/koalaman/shellcheck/pull/1032
+- repo: https://gitlab.com/univention/pre-commit-hooks/pre-commit-shell
+  rev: v1.0.6
+  hooks:
+  - id: shell-lint
+
+
+# "Dockerfile linter"
+- repo: https://gitlab.com/univention/pre-commit-hooks/docker-pre-commit
+  rev: v2.0.0
+  hooks:
+  - id: hadolint-system
+    args:
+      - --failure-threshold=error
+
+# "docker-compose.yaml linter"
+- repo: https://gitlab.com/univention/pre-commit/docker-compose-check
+  rev: 7702a8801a158b8595569dd29e2dd655d8a08310
+  hooks:
+  - id: docker-compose-check
+
+- repo: https://github.com/norwoodj/helm-docs
+  rev: v1.11.0
+  hooks:
+    - id: helm-docs
+      args:
+        - --chart-search-root=helm
+        - --template-files=README.md.gotmpl
+...

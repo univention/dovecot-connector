@@ -75,7 +75,7 @@ LongDescription = <p>
 	<p>
 	</p>
 	<p>
-		Um diese App zu nutzen, brauchen Sie eine entfernte Dovecot-Installation, die Zugriff auf den <i>doveadm port</i> erlaubt und das Passwort für den <i>doveadm</i> Benutzer. 
+		Um diese App zu nutzen, brauchen Sie eine entfernte Dovecot-Installation, die Zugriff auf den <i>doveadm port</i> erlaubt und das Passwort für den <i>doveadm</i> Benutzer.
 	</p>
 	<p>
 		Sollte die http API des doveadm nicht per https zu erreichen sein, ist die Verbindung anderweitig abzusichern, z.B. durch die Nutzung eines verschlüsselten Tunnels.
