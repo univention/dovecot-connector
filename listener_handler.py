@@ -70,6 +70,17 @@ name = 'dovecot-connector'
 
 
 class DovecotConnectorListenerModule(ListenerModuleHandler):
+    def _unpack(self, obj: dict, key: str):
+        """
+        Unpacks a list of bytes to a string
+        Args:
+            obj(dict): The object to unpack
+            key(str): The key to unpack
+        Returns:
+            The unpacked string
+        """
+        return obj.get(key, [b''])[0].decode('utf8')
+
     def initialize(self):
         self.logger.info('dovecot-connector listener module initialize')
 
@@ -85,18 +96,19 @@ class DovecotConnectorListenerModule(ListenerModuleHandler):
     def remove(self, dn, old):
         self.logger.info('[ remove ] dn: %r', dn)
         try:
-            old["username"] = old["uid"][0].decode("utf-8")
-            old["mailPrimaryAddress"] = old["mailPrimaryAddress"][0].decode(
-                "utf-8")
+            old["username"] = self._unpack(old, "uid")
+            old["mailPrimaryAddress"] = self._unpack(old, "mailPrimaryAddress")
             listener_trigger.delete_on_all_hosts(
                 settings,
                 dn,
-                old["entryUUID"][0].decode("utf-8"),
+                self._unpack(old, "entryUUID"),
                 old
             )
             self.logger.info('[ remove ] success on mailbox deletion %r', dn)
-        except Exception as e:
-            self.logger.error("Error while deleting mailbox: %r", e)
+        except Exception:
+            self.logger.error(
+                "Error while deleting mailbox: user may not have a mailbox"
+            )
 
     class Configuration(ListenerModuleHandler.Configuration):
         name = name
