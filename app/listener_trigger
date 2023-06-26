@@ -117,7 +117,7 @@ class TriggerObject:
     def get_old_file_path(self):
         """
         Name of the old file. May or may not be present. Is used by
-        objects_from_files to move files if speceified.
+        objects_from_files to move files if specified.
         """
         file_name = f"{self.content['id']}.json"
         return OLD_FILES_DIR / file_name
