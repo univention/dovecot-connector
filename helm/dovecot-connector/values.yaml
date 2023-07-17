@@ -21,7 +21,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 
-dovecot_connector:
+dovecotConnector:
   domainName: "example.org"
   ldapPort: "389"
   ldapHost: "domain.example.org"

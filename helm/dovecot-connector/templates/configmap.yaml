@@ -5,7 +5,7 @@ kind: ConfigMap
 metadata:
   name: '{{ include "common.names.fullname" . }}'
 data:
-  {{ with .Values.dovecot_connector }}
+  {{ with .Values.dovecotConnector }}
   DOMAIN_NAME: "{{ .domainName }}"
   LDAP_PORT: "{{ .ldapPort }}"
   LDAP_HOST: "{{ .ldapHost }}"

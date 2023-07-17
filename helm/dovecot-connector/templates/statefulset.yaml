@@ -29,11 +29,11 @@ spec:
       serviceAccountName: {{ include "common.names.fullname" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      {{- if .Values.dovecot_connector.ldapHostIp }}
+      {{- if .Values.dovecotConnector.ldapHostIp }}
       hostAliases:
         - hostnames:
-            - {{ .Values.dovecot_connector.ldapHost | quote }}
-          ip: {{ .Values.dovecot_connector.ldapHostIp | quote }}
+            - {{ .Values.dovecotConnector.ldapHost | quote }}
+          ip: {{ .Values.dovecotConnector.ldapHostIp | quote }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}

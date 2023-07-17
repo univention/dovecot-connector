@@ -21,28 +21,28 @@ A Helm chart for the dovecot-connector
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| dovecot_connector.authLdapSecret | string | `""` | LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine. |
-| dovecot_connector.caCert | string | `""` | CA certificate of UCS machine, base64 encoded. |
-| dovecot_connector.caCertFile | string | `"/run/secrets/ca_cert"` |  |
-| dovecot_connector.certPem | string | `""` | Certificate of the ucs machine, base64 encoded. |
-| dovecot_connector.certPemFile | string | `"/run/secrets/cert_pem"` |  |
-| dovecot_connector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
-| dovecot_connector.dccAdmHost | string | `"dovecot.example.org"` | Host where the doveadm HTTP API is hosted. |
-| dovecot_connector.dccAdmPassword | string | `"somepassword"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file. |
-| dovecot_connector.dccAdmPort | string | `"80"` | Host where the doveadm HTTP API is exposed. |
-| dovecot_connector.dccAdmUri | string | `"http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"` | Template for the python dovecot-connector script. |
-| dovecot_connector.dccAdmUsername | string | `"doveadm"` | doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`. |
-| dovecot_connector.dccDcVmailTemplate | string | `"/var/spool/dovecot/private/{domain}/{username}"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`. |
-| dovecot_connector.dccLoglevel | string | `"DEBUG"` | Log level |
-| dovecot_connector.debugLevel | string | `"5"` |  |
-| dovecot_connector.domainName | string | `"example.org"` |  |
-| dovecot_connector.ldapBaseDn | string | `"dc=example,dc=org"` |  |
-| dovecot_connector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` |  |
-| dovecot_connector.ldapHost | string | `"domain.example.org"` |  |
-| dovecot_connector.ldapHostDn | string | `"cn=domain,cn=dc,cn=computers,dc=example,dc=org"` |  |
-| dovecot_connector.ldapHostIp | string | `""` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
-| dovecot_connector.ldapPort | string | `"389"` |  |
-| dovecot_connector.notifierServer | string | `"domain.example.org"` | Defaults to "ldap_host" if not set. |
+| dovecotConnector.authLdapSecret | string | `""` | LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine. |
+| dovecotConnector.caCert | string | `""` | CA certificate of UCS machine, base64 encoded. |
+| dovecotConnector.caCertFile | string | `"/run/secrets/ca_cert"` |  |
+| dovecotConnector.certPem | string | `""` | Certificate of the ucs machine, base64 encoded. |
+| dovecotConnector.certPemFile | string | `"/run/secrets/cert_pem"` |  |
+| dovecotConnector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
+| dovecotConnector.dccAdmHost | string | `"dovecot.example.org"` | Host where the doveadm HTTP API is hosted. |
+| dovecotConnector.dccAdmPassword | string | `"somepassword"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file. |
+| dovecotConnector.dccAdmPort | string | `"80"` | Host where the doveadm HTTP API is exposed. |
+| dovecotConnector.dccAdmUri | string | `"http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"` | Template for the python dovecot-connector script. |
+| dovecotConnector.dccAdmUsername | string | `"doveadm"` | doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`. |
+| dovecotConnector.dccDcVmailTemplate | string | `"/var/spool/dovecot/private/{domain}/{username}"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`. |
+| dovecotConnector.dccLoglevel | string | `"DEBUG"` | Log level |
+| dovecotConnector.debugLevel | string | `"5"` |  |
+| dovecotConnector.domainName | string | `"example.org"` |  |
+| dovecotConnector.ldapBaseDn | string | `"dc=example,dc=org"` |  |
+| dovecotConnector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` |  |
+| dovecotConnector.ldapHost | string | `"domain.example.org"` |  |
+| dovecotConnector.ldapHostDn | string | `"cn=domain,cn=dc,cn=computers,dc=example,dc=org"` |  |
+| dovecotConnector.ldapHostIp | string | `""` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
+| dovecotConnector.ldapPort | string | `"389"` |  |
+| dovecotConnector.notifierServer | string | `"domain.example.org"` | Defaults to "ldap_host" if not set. |
 | environment | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | image.imagePullPolicy | string | `"Always"` |  |
