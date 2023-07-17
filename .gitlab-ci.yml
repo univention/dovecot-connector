@@ -33,7 +33,6 @@ lint-pre-commit:
   before_script:
     # Compose lint would fail without the referenced env files
     - cp .env.example .env
-    - cp .env.souvap.example .env.souvap
 
 
 download-python-doveadm:

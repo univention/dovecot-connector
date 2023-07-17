@@ -1,28 +1,52 @@
 ---
+
 version: "3.9"
+
 services:
   dovecot-connector:
-    platform: linux/amd64
+    platform: "linux/amd64"
     build:
-      context: ./
-      dockerfile: Dockerfile.souvap
+      context: "."
+      dockerfile: "Dockerfile.souvap"
       args:
-        - version=1.0.2
-    env_file: .env.souvap
-    volumes:
-      - dovecot-listener:/var/lib/univention-directory-listener/:rw
+        - "version=1.0.2"
+    environment:
+      # Variables for Univention Directory Listener
+      LDAP_HOST: "domain.example.org"
+      LDAP_PORT: 389
+      LDAP_BASE_DN: "dc=example,dc=org"
+      LDAP_HOST_DN: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
+      NOTIFIER_SERVER: "domain.example.org"
+      DEBUG_LEVEL: 5
+      # Password is read from `secret/ldap.secret`
+      #LDAP_PASSWORD: "univention"
+      #LDAP_PASSWORD_FILE: "/run/secrets/ldap_secret"
+      # Cert is read from `ssl/certs/CAcert.pem`
+      #CA_CERT: "<ca-cert>"
+      #CA_CERT_FILE: "/run/secrets/ca_cert"
+
+      # Variables for Univention Dovecot Connector
+      DCC_ADM_URI: "localhost"
+      DCC_ADM_HOST: "127.0.0.1"
+      DCC_ADM_PORT: "8080"
+      DCC_ADM_USERNAME: "doveadm"
+      DCC_ADM_PASSWORD: "4711.UnsecureThisPasswordIs"
+      DCC_DC_VMAIL_TEMPLATE: "/var/spool/dovecot/private/{domain}/{uuid}"
+      DCC_ADM_ACCEPTED_EXIT_CODES: "0 2 68 75"
+      DCC_LOGLEVEL: "DEBUG"
     secrets:
-      - ca_cert
-      - cert_pem
-      - ldap_secret
+      - "ca_cert"
+      - "ldap_secret"
+    volumes:
+      - "listener-data:/var/lib/univention-directory-listener/:rw"
 
 secrets:
   ca_cert:
-    file: ssl/certs/CAcert.pem
-  cert_pem:
-    file: ssl/certs/cert.pem
+    file: "ssl/certs/CAcert.pem"
   ldap_secret:
-    file: secret/ldap.secret
+    file: "secret/ldap.secret"
+
 volumes:
-  dovecot-listener:
+  listener-data:
+
 ...

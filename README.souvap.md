@@ -23,7 +23,7 @@ and runs on a container continuously.
 
 ### Variables
 
-In the file `.env.souvap.example` you will find some variables you can change.
+In the file `docker-compose.yaml` you will find some variables you can change via `docker-compose.override.yaml`.
 * `DCC_ADM_URI`: `http://{dcc_adm_host}:{dcc_adm_port:d}/doveadm/v1` as template for the python connector.
 * `DCC_ADM_HOST`: host where the doveadm HTTP API is hosted.
 * `DCC_ADM_PORT`: port where the doveadm HTTP API is exposed.

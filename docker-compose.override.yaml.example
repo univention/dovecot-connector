@@ -1,0 +1,16 @@
+---
+
+version: "3.9"
+
+services:
+  dovecot-connector:
+    environment:
+      LDAP_PASSWORD: "univention"
+      LDAP_PASSWORD_FILE: "/var/secrets/ldap_secret"
+      CA_CERT: "ca-cert-data"
+      CA_CERT_FILE: "/var/secrets/ca_cert"
+    secrets: {}
+
+secrets: {}
+
+...
