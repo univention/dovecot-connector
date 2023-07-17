@@ -1,0 +1,10 @@
+---
+
+probes:
+  liveness:
+    enabled: false
+
+  readiness:
+    enabled: false
+
+...

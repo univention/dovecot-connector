@@ -73,10 +73,20 @@ image:
 ## Container deployment probes
 probes:
   liveness:
-    enabled: false
+    enabled: true
+    initialDelaySeconds: 120
+    timeoutSeconds: 3
+    periodSeconds: 30
+    failureThreshold: 3
+    successThreshold: 1
 
   readiness:
-    enabled: false
+    enabled: true
+    initialDelaySeconds: 30
+    timeoutSeconds: 3
+    periodSeconds: 15
+    failureThreshold: 30
+    successThreshold: 1
 
 ## Deployment resources
 resources: {}
