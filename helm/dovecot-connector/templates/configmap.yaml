@@ -1,9 +1,7 @@
 ---
+{{ include "common.configMap" (dict "top" . "overrides" "ldap-server.configMap") }}
 
-apiVersion: "v1"
-kind: "ConfigMap"
-metadata:
-  name: '{{ include "common.names.fullname" . }}'
+{{- define "ldap-server.configMap" }}
 data:
   {{ with .Values.dovecotConnector }}
   # Variables for Univention Directory Listener
@@ -15,7 +13,9 @@ data:
   DEBUG_LEVEL: "{{ .debugLevel }}"
   LDAP_PASSWORD: "{{ .ldapPassword }}"
   LDAP_PASSWORD_FILE: "{{ .ldapPasswordFile }}"
+  CA_CERT: "{{ .caCert }}"
   CA_CERT_FILE: "{{ .caCertFile }}"
+  TLS_MODE: "{{ .tlsMode }}"
   # Variables for Dovecot Connector
   DCC_ADM_URI: "{{ .dccAdmUri }}"
   DCC_ADM_HOST: "{{ .dccAdmHost }}"
@@ -26,4 +26,6 @@ data:
   DCC_ADM_ACCEPTED_EXIT_CODES: "{{ .dccAdmAcceptedExitCodes }}"
   DCC_LOGLEVEL: "{{ .dccLoglevel }}"
   {{ end }}
+{{- end }}
+
 ...

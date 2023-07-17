@@ -46,6 +46,9 @@ dovecotConnector:
   caCert: null
   # -- The path to the "caCertFile" docker secret or a plain file.
   caCertFile: "/run/secrets/ca_cert"
+  # -- Whenever to start encryption and validate certificates.
+  # Chose from "off", "unvalidated" and "secure".
+  tlsMode: "secure"
 
   # Variables for Dovecot Connector
   # -- Template for the python dovecot-connector script.

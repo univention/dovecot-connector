@@ -40,6 +40,7 @@ A Helm chart for the dovecot-connector
 | dovecotConnector.ldapPasswordFile | string | `"/run/secrets/ldap_secret"` | The path to the "ldapPasswordFile" docker secret or a plain file |
 | dovecotConnector.ldapPort | int | `389` | LDAP Server Port |
 | dovecotConnector.notifierServer | string | `nil` | Defaults to "ldapHost" if not set. |
+| dovecotConnector.tlsMode | string | `"secure"` | Whenever to start encryption and validate certificates. Chose from "off", "unvalidated" and "secure". |
 | environment | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | image.imagePullPolicy | string | `"Always"` |  |

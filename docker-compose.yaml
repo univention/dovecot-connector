@@ -18,6 +18,9 @@ services:
       LDAP_HOST_DN: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
       NOTIFIER_SERVER: "domain.example.org"
       DEBUG_LEVEL: 5
+      # Whenever to start encryption and validate certificates.
+      # Chose from "off", "unvalidated" and "secure".
+      TLS_MODE: "off"
       # Password is read from `secret/ldap.secret`
       #LDAP_PASSWORD: "univention"
       #LDAP_PASSWORD_FILE: "/run/secrets/ldap_secret"
