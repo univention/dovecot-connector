@@ -13,7 +13,8 @@ data:
   LDAP_HOST_DN: "{{ .ldapHostDn }}"
   NOTIFIER_SERVER: "{{ .notifierServer }}"
   DEBUG_LEVEL: "{{ .debugLevel }}"
-  LDAP_BIND_SECRET: "{{ .ldapBindSecret }}"
+  LDAP_PASSWORD: "{{ .ldapPassword }}"
+  LDAP_PASSWORD_FILE: "{{ .ldapPasswordFile }}"
   CA_CERT_FILE: "{{ .caCertFile }}"
   # Variables for Dovecot Connector
   DCC_ADM_URI: "{{ .dccAdmUri }}"

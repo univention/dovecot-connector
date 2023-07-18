@@ -39,9 +39,9 @@ dovecotConnector:
   # -- UDL-Debug level (1-5)
   debugLevel: 3
   # -- LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set.
-  authLdapSecret: null
+  ldapPassword: null
   # -- The path to the "ldapPasswordFile" docker secret or a plain file
-  ldapBindSecret: "/run/secrets/ldap_secret"
+  ldapPasswordFile: "/run/secrets/ldap_secret"
   # -- CA root certificate. Optional; will be written to "caCertFile" if set.
   caCert: null
   # -- The path to the "caCertFile" docker secret or a plain file.

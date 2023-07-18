@@ -21,7 +21,6 @@ A Helm chart for the dovecot-connector
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| dovecotConnector.authLdapSecret | string | `nil` | LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set. |
 | dovecotConnector.caCert | string | `nil` | CA root certificate. Optional; will be written to "caCertFile" if set. |
 | dovecotConnector.caCertFile | string | `"/run/secrets/ca_cert"` | The path to the "caCertFile" docker secret or a plain file. |
 | dovecotConnector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | DoveAdm exit codes which will be considered as successful [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
@@ -34,10 +33,11 @@ A Helm chart for the dovecot-connector
 | dovecotConnector.dccLoglevel | string | `"INFO"` | Log level |
 | dovecotConnector.debugLevel | int | `3` | UDL-Debug level (1-5) |
 | dovecotConnector.ldapBaseDn | string | `nil` | LDAP Base Distinguished Name |
-| dovecotConnector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` | The path to the "ldapPasswordFile" docker secret or a plain file |
 | dovecotConnector.ldapHost | string | `nil` | LDAP Server Domain Name |
 | dovecotConnector.ldapHostDn | string | `nil` | LDAP Host Distinguished Name |
 | dovecotConnector.ldapHostIp | string | `nil` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
+| dovecotConnector.ldapPassword | string | `nil` | LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set. |
+| dovecotConnector.ldapPasswordFile | string | `"/run/secrets/ldap_secret"` | The path to the "ldapPasswordFile" docker secret or a plain file |
 | dovecotConnector.ldapPort | int | `389` | LDAP Server Port |
 | dovecotConnector.notifierServer | string | `nil` | Defaults to "ldapHost" if not set. |
 | environment | object | `{}` |  |
