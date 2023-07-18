@@ -21,25 +21,25 @@ A Helm chart for the dovecot-connector
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
-| dovecotConnector.authLdapSecret | string | `""` | LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine. |
-| dovecotConnector.caCert | string | `""` | CA certificate of UCS machine, base64 encoded. |
-| dovecotConnector.caCertFile | string | `"/run/secrets/ca_cert"` |  |
-| dovecotConnector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
-| dovecotConnector.dccAdmHost | string | `"dovecot.example.org"` | Host where the doveadm HTTP API is hosted. |
-| dovecotConnector.dccAdmPassword | string | `"somepassword"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file. |
+| dovecotConnector.authLdapSecret | string | `nil` | LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set. |
+| dovecotConnector.caCert | string | `nil` | CA root certificate. Optional; will be written to "caCertFile" if set. |
+| dovecotConnector.caCertFile | string | `"/run/secrets/ca_cert"` | The path to the "caCertFile" docker secret or a plain file. |
+| dovecotConnector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | DoveAdm exit codes which will be considered as successful [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
+| dovecotConnector.dccAdmHost | string | `nil` | Host where the doveadm HTTP API is hosted. |
+| dovecotConnector.dccAdmPassword | string | `nil` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file. |
 | dovecotConnector.dccAdmPort | string | `"80"` | Host where the doveadm HTTP API is exposed. |
 | dovecotConnector.dccAdmUri | string | `"http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"` | Template for the python dovecot-connector script. |
-| dovecotConnector.dccAdmUsername | string | `"doveadm"` | doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`. |
+| dovecotConnector.dccAdmUsername | string | `nil` | doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`. |
 | dovecotConnector.dccDcVmailTemplate | string | `"/var/spool/dovecot/private/{domain}/{username}"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`. |
-| dovecotConnector.dccLoglevel | string | `"DEBUG"` | Log level |
-| dovecotConnector.debugLevel | string | `"5"` |  |
-| dovecotConnector.ldapBaseDn | string | `"dc=example,dc=org"` |  |
-| dovecotConnector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` |  |
-| dovecotConnector.ldapHost | string | `"domain.example.org"` |  |
-| dovecotConnector.ldapHostDn | string | `"cn=domain,cn=dc,cn=computers,dc=example,dc=org"` |  |
-| dovecotConnector.ldapHostIp | string | `""` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
-| dovecotConnector.ldapPort | string | `"389"` |  |
-| dovecotConnector.notifierServer | string | `"domain.example.org"` | Defaults to "ldap_host" if not set. |
+| dovecotConnector.dccLoglevel | string | `"INFO"` | Log level |
+| dovecotConnector.debugLevel | int | `3` | UDL-Debug level (1-5) |
+| dovecotConnector.ldapBaseDn | string | `nil` | LDAP Base Distinguished Name |
+| dovecotConnector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` | The path to the "ldapPasswordFile" docker secret or a plain file |
+| dovecotConnector.ldapHost | string | `nil` | LDAP Server Domain Name |
+| dovecotConnector.ldapHostDn | string | `nil` | LDAP Host Distinguished Name |
+| dovecotConnector.ldapHostIp | string | `nil` | Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set |
+| dovecotConnector.ldapPort | int | `389` | LDAP Server Port |
+| dovecotConnector.notifierServer | string | `nil` | Defaults to "ldapHost" if not set. |
 | environment | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | image.imagePullPolicy | string | `"Always"` |  |

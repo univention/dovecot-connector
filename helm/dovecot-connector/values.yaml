@@ -21,40 +21,50 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 
+## Application-specific variables
 dovecotConnector:
-  ldapPort: "389"
-  ldapHost: "domain.example.org"
+  # Variables for Univention Directory Listener
+  # -- LDAP Server Domain Name
+  ldapHost: null
+  # -- LDAP Server Port
+  ldapPort: 389
   # -- Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set
-  ldapHostIp: ""
-  ldapBaseDn: "dc=example,dc=org"
-  ldapHostDn: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
-  # -- Defaults to "ldap_host" if not set.
-  notifierServer: "domain.example.org"
-  debugLevel: "5"
-  # -- LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine.
-  authLdapSecret: ""
+  ldapHostIp: null
+  # -- LDAP Base Distinguished Name
+  ldapBaseDn: null
+  # -- LDAP Host Distinguished Name
+  ldapHostDn: null
+  # -- Defaults to "ldapHost" if not set.
+  notifierServer: null
+  # -- UDL-Debug level (1-5)
+  debugLevel: 3
+  # -- LDAP password for `cn=admin`. Will be written to "ldapPasswordFile" if set.
+  authLdapSecret: null
+  # -- The path to the "ldapPasswordFile" docker secret or a plain file
   ldapBindSecret: "/run/secrets/ldap_secret"
-  # -- CA certificate of UCS machine, base64 encoded.
-  caCert: ""
+  # -- CA root certificate. Optional; will be written to "caCertFile" if set.
+  caCert: null
+  # -- The path to the "caCertFile" docker secret or a plain file.
   caCertFile: "/run/secrets/ca_cert"
 
   # Variables for Dovecot Connector
   # -- Template for the python dovecot-connector script.
   dccAdmUri: "http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"
   # -- Host where the doveadm HTTP API is hosted.
-  dccAdmHost: "dovecot.example.org"
+  dccAdmHost: null
   # -- Host where the doveadm HTTP API is exposed.
   dccAdmPort: "80"
   # -- doveadm user, normally `doveadm` or specified under `doveadm_username` at `dovecont.conf`.
-  dccAdmUsername: "doveadm"
+  dccAdmUsername: null
   # -- doveadm password, usually under `doveadm_password` on the `dovecot.conf` file.
-  dccAdmPassword: "somepassword"
+  dccAdmPassword: null
   # -- doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`.
   dccDcVmailTemplate: "/var/spool/dovecot/private/{domain}/{username}"
-  # -- [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/)
+  # -- DoveAdm exit codes which will be considered as successful
+  # [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/)
   dccAdmAcceptedExitCodes: "0 2 68 75"
   # -- Log level
-  dccLoglevel: "DEBUG"
+  dccLoglevel: "INFO"
 
 # -- Kubernetes ingress
 ingress:

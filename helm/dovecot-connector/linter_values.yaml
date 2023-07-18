@@ -1,5 +1,30 @@
 ---
 
+# Dummy values for running the Helm linter on the ox-connector.
+# Run it like this: helm lint -f values.yaml -f linter_values.yaml .
+
+
+## Application-specific
+dovecotConnector:
+  # Variables for Univention Directory Listener
+  ldapHost: "ldap.example.org"
+  ldapHostIp: ""
+  ldapBaseDn: "dc=example,dc=org"
+  ldapHostDn: "cn=domain,cn=dc,cn=computers,dc=example,dc=org"
+  notifierServer: "notifier.example.org"
+  ldapPassword: "s3cr3t"
+  ldapPasswordFile: "/var/secrets/ldap_secret"
+  caCert: "s3cr3t"
+  caCertFile: "/var/secrets/ca_cert"
+  tlsMode: "unvalidated"
+
+  # Variables for Dovecot Connector
+  dccAdmHost: "dovecot.example.org"
+  dccAdmUsername: "doveadm"
+  dccAdmPassword: "somepassword"
+  dccLoglevel: "DEBUG"
+
+## Container deployment probes
 probes:
   liveness:
     enabled: false
