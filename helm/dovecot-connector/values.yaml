@@ -22,7 +22,6 @@ autoscaling:
 
 
 dovecotConnector:
-  domainName: "example.org"
   ldapPort: "389"
   ldapHost: "domain.example.org"
   # -- Will add a mapping from "ldapHost" to "ldapHostIp" into "/etc/hosts" if set
@@ -38,9 +37,8 @@ dovecotConnector:
   # -- CA certificate of UCS machine, base64 encoded.
   caCert: ""
   caCertFile: "/run/secrets/ca_cert"
-  # -- Certificate of the ucs machine, base64 encoded.
-  certPem: ""
-  certPemFile: "/run/secrets/cert_pem"
+
+  # Variables for Dovecot Connector
   # -- Template for the python dovecot-connector script.
   dccAdmUri: "http://{dcc_adm_host}:{dcc_adm_port}/doveadm/v1"
   # -- Host where the doveadm HTTP API is hosted.

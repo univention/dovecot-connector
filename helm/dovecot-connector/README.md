@@ -24,8 +24,6 @@ A Helm chart for the dovecot-connector
 | dovecotConnector.authLdapSecret | string | `""` | LDAP access password, base64 encoded. See /etc/ldap.secret on your UCS machine. |
 | dovecotConnector.caCert | string | `""` | CA certificate of UCS machine, base64 encoded. |
 | dovecotConnector.caCertFile | string | `"/run/secrets/ca_cert"` |  |
-| dovecotConnector.certPem | string | `""` | Certificate of the ucs machine, base64 encoded. |
-| dovecotConnector.certPemFile | string | `"/run/secrets/cert_pem"` |  |
 | dovecotConnector.dccAdmAcceptedExitCodes | string | `"0 2 68 75"` | [dovecot specs](https://doc.dovecot.org/admin_manual/error_codes/) |
 | dovecotConnector.dccAdmHost | string | `"dovecot.example.org"` | Host where the doveadm HTTP API is hosted. |
 | dovecotConnector.dccAdmPassword | string | `"somepassword"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file. |
@@ -35,7 +33,6 @@ A Helm chart for the dovecot-connector
 | dovecotConnector.dccDcVmailTemplate | string | `"/var/spool/dovecot/private/{domain}/{username}"` | doveadm password, usually under `doveadm_password` on the `dovecot.conf` file, with options `domain`, `username`, `email`, `uuid`. |
 | dovecotConnector.dccLoglevel | string | `"DEBUG"` | Log level |
 | dovecotConnector.debugLevel | string | `"5"` |  |
-| dovecotConnector.domainName | string | `"example.org"` |  |
 | dovecotConnector.ldapBaseDn | string | `"dc=example,dc=org"` |  |
 | dovecotConnector.ldapBindSecret | string | `"/run/secrets/ldap_secret"` |  |
 | dovecotConnector.ldapHost | string | `"domain.example.org"` |  |
