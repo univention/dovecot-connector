@@ -34,8 +34,8 @@ spec:
       {{- if .Values.dovecotConnector.ldapHostIp }}
       hostAliases:
         - hostnames:
-            - '{{ .Values.dovecotConnector.ldapHost | quote }}'
-          ip: '{{ .Values.dovecotConnector.ldapHostIp | quote }}'
+            - {{ .Values.dovecotConnector.ldapHost | quote }}
+          ip: {{ .Values.dovecotConnector.ldapHostIp | quote }}
       {{- end }}
       containers:
         - name: '{{ .Chart.Name }}'
@@ -60,7 +60,7 @@ spec:
       volumes:
       - name: "secrets"
         secret:
-          secretName: '{{ include "common.names.fullname" . | quote }}'
+          secretName: {{ include "common.names.fullname" . | quote }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
