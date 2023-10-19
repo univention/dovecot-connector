@@ -1,15 +1,16 @@
 # syntax=docker/dockerfile:1
 
-ARG DOCKERHUB_CACHE=""
+ARG UCS_BASE_IMAGE_TAG=v0.7.5
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
 
 ###############################################################################
-FROM ${DOCKERHUB_CACHE}library/debian:bullseye-slim AS debian-python3-builder
-SHELL ["/bin/sh", "-eux", "-c"]
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS debian-python3-builder
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 RUN \
-  apt-get update && \
+  apt-get update -qq && \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
+    apt-get install --assume-yes --verbose-versions --no-install-recommends \
       # dependency of stdeb \
       python3-all \
       # for python3 executable \
@@ -21,8 +22,8 @@ RUN \
 
 
 ###############################################################################
-FROM ${DOCKERHUB_CACHE}library/alpine:3.12 AS dovecot-connector-alpine-build
-SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS dovecot-connector-build
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 ARG version
 
@@ -30,8 +31,12 @@ ARG version
 WORKDIR /build/univention-dovecot-connector
 
 RUN \
-  apk add --no-cache python3 py3-pip && \
-  python3 -m venv --system-site-packages /build/venv && \
+    apt-get update -qq && \
+    apt-get install --assume-yes --verbose-versions --no-install-recommends \
+      python3-minimal \
+      python3-pip \
+      python3-venv && \
+  python3 -m venv /build/venv && \
   /build/venv/bin/python3 -m pip install --upgrade pip && \
   /build/venv/bin/pip3 install build
 
@@ -45,8 +50,8 @@ RUN \
 
 
 ###############################################################################
-FROM ${DOCKERHUB_CACHE}library/debian:bullseye-slim AS final
-SHELL ["/bin/sh", "-eux", "-c"]
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS final
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 ARG version
 
@@ -55,12 +60,9 @@ LABEL \
   "version"="$version"
 
 RUN \
-  apt-get update && \
+  apt-get update -qq && \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-      # for dbm.gnu useed by listener_trigger
-      python3-gdbm \
-      # for the python3 executable \
+    apt-get install --assume-yes --verbose-versions --no-install-recommends \
       python3-minimal \
       # for the pip3 executable \
       python3-pip \
@@ -72,17 +74,15 @@ RUN \
 WORKDIR /pkg-temp/python-doveadm
 COPY python-doveadm.zip .
 RUN \
-  ls -la && \
   unzip -d . python-doveadm.zip && \
-  ls -la && \
   dpkg -i *.deb && \
   rm -rf /pkg-temp/
 
 # install dovecot-connector
 WORKDIR /pkg-temp
-COPY --from=dovecot-connector-alpine-build /pippkg/*.whl /pkg-temp/
+COPY --from=dovecot-connector-build /pippkg/*.whl /pkg-temp/
 RUN \
-  pip install /pkg-temp/*.whl && \
+  pip3 install --break-system-packages /pkg-temp/*.whl && \
   rm -r /pkg-temp
 
 COPY init.py /sbin/init.py

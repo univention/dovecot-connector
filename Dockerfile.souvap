@@ -3,10 +3,16 @@
 ARG DOCKERHUB_CACHE=""
 ARG UNIVENTION_REGISTRY="gitregistry.knut.univention.de"
 
+ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
+ARG UCS_BASE_IMAGE_TAG=v0.7.5
+
+ARG LISTENER_BASE_IMAGE=gitregistry.knut.univention.de/univention/customers/dataport/upx/container-listener-base/listener-base
+ARG LISTENER_BASE_IMAGE_TAG=v0.4.1
+
 
 ###############################################################################
-FROM ${DOCKERHUB_CACHE}library/alpine:3.12 AS dovecot-connector-alpine-build
-SHELL ["/bin/sh", "-euxo", "pipefail", "-c"]
+FROM ${UCS_BASE_IMAGE}:${UCS_BASE_IMAGE_TAG} AS dovecot-connector-build
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 ARG version
 
@@ -14,7 +20,11 @@ ARG version
 WORKDIR /build/univention-dovecot-connector
 
 RUN \
-  apk add --no-cache python3 py3-pip && \
+    apt-get update -qq && \
+    apt-get install --assume-yes --verbose-versions --no-install-recommends \
+      python3-minimal \
+      python3-pip \
+      python3-venv && \
   python3 -m venv /build/venv && \
   /build/venv/bin/python3 -m pip install --upgrade pip && \
   /build/venv/bin/pip3 install build
@@ -30,8 +40,8 @@ RUN \
 
 ###############################################################################
 
-FROM ${UNIVENTION_REGISTRY}/univention/customers/dataport/upx/container-listener-base/listener-base:latest AS final
-SHELL ["/bin/sh", "-eux", "-c"]
+FROM ${LISTENER_BASE_IMAGE}:${LISTENER_BASE_IMAGE_TAG} AS final
+SHELL ["/bin/bash", "-euxo", "pipefail", "-c"]
 
 ARG version
 
@@ -40,16 +50,14 @@ LABEL \
   "version"="$version"
 
 RUN \
-  apt-get update && \
+  apt-get update -qq && \
   DEBIAN_FRONTEND=noninteractive \
-    apt-get -V install --assume-yes --verbose-versions --no-install-recommends \
-      # for the python3 executable \
-      python3-minimal \
-      # for the pip3 executable \
+    apt-get install --assume-yes --verbose-versions --no-install-recommends \
       python3-pip \
       # for python-doveadm
       python3-requests \
-      unzip
+      unzip && \
+    rm -rf /var/lib/apt/lists/*
 
 # install python-doveadm
 WORKDIR /pkg-temp/python-doveadm
@@ -61,7 +69,7 @@ RUN \
 
 # install dovecot-connector
 WORKDIR /pkg-temp
-COPY --from=dovecot-connector-alpine-build /pippkg/*.whl /pkg-temp/
+COPY --from=dovecot-connector-build /pippkg/*.whl /pkg-temp/
 RUN \
   pip3 install /pkg-temp/*.whl && \
   rm -r /pkg-temp
