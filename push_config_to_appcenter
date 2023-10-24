@@ -21,34 +21,36 @@
 # SPDX-License-Name: GNU Affero General Public License v3.0 or later
 # SPDX-License-URL: https://spdx.org/licenses/AGPL-3.0-or-later.html
 
+set -e
+set -x
+
 APP_ID="dovecot-connector"
 
-download_univention-appcenter-control() {
-  if ! [[ -x univention-appcenter-control ]]; then
-    curl --silent --output univention-appcenter-control \
-      https://provider-portal.software-univention.de/appcenter-selfservice/univention-appcenter-control
-    chmod +x univention-appcenter-control
-  fi
+selfservice () {
+	local uri="https://provider-portal.software-univention.de/appcenter-selfservice/univention-appcenter-control"
+	local first=$1
+	shift
+
+	# USERNAME="$USER"
+	# [ -e "$HOME/.univention-appcenter-user" ] && USERNAME="$(< $HOME/.univention-appcenter-user)"
+
+	# PWDFILE="~/.selfservicepwd"
+	# [ -e "$HOME/.univention-appcenter-pwd" ] && PWDFILE="$HOME/.univention-appcenter-pwd"
+
+	# curl -sSfL "$uri" | python2 - "$first" --username=${USERNAME} --pwdfile=${PWDFILE} "$@"
+    curl -sSfL "$uri" | python3 - "$first" "$@"
 }
+
+die () {
+	echo "$@"
+	exit 0
+}
+
+[ "$IGN_GIT" != "true" ] && test -n "$(git status -s)" && die "Changes in repo, do not upload app! (to override: IGN_GIT=true)"
 
 APP_VERSION="$(grep ^Version app/ini | awk '{ print $3 }')"
 APP_VERSION_STRING="4.4/${APP_ID}=${APP_VERSION}"
 echo "App version in source code is: '${APP_VERSION}'."
 echo "The app version string used for the upload is '${APP_VERSION_STRING}'."
 
-if ! [[ -e "${HOME}/.univention-appcenter-user" ]] || ! [[ -e "${HOME}/.univention-appcenter-pwd" ]]; then
-  echo -e "\nTo upload the files to the test appcenter you will now be asked for your"
-  echo "username and password. Hint: create ~/.univention-appcenter-user and"
-  echo " ~/.univention-appcenter-pwd to skip the question."
-fi
-
-# upload to univention app provider portal
-download_univention-appcenter-control
-
-echo -e "\nFiles to upload:\n-------------------------------------------------------------------------------"
-find app/ -type f | sort
-
-read -n1 -r -p "Press any key to continue or Ctrl-C to abort."
-echo
-
-./univention-appcenter-control upload "${APP_VERSION_STRING}" "$(find app/ -type f | sort)"
+selfservice upload "${APP_VERSION_STRING}" app/ini app/listener_trigger app/README_DE app/README_EN app/settings
