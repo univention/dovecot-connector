@@ -7,7 +7,7 @@ services:
     platform: "linux/amd64"
     build:
       context: "."
-      dockerfile: "Dockerfile.souvap"
+      dockerfile: "docker/dovecot-connector/Dockerfile.souvap"
       args:
         - "version=1.0.2"
     environment:
