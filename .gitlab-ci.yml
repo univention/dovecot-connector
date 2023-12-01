@@ -1,7 +1,7 @@
 ---
 include:
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.9.8"
+    ref: "v1.9.9"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
@@ -16,7 +16,7 @@ variables:
   SOUVAP_HELM_PROJECT_ID: 129
   SOUVAP_DOCKER_ACCESS_TOKEN: ${SOUVAP_REGISTRY_TOKEN}
   SOUVAP_REGISTRY_PATH: souvap/tooling/images/dovecot-connector
-  DEBUG: "true"
+  IMAGE_NAME: &IMAGE_NAME "dovecot-connector"
 
 download-python-doveadm:
   image: ${DOCKERHUB_CACHE}library/alpine:3.16.2
@@ -42,16 +42,15 @@ container-build:
   before_script:
     - env | sort
   variables:
+    KANIKO_BUILD_CONTEXT: "$CI_PROJECT_DIR"
     DOCKERFILE_PATH: "docker/dovecot-connector/Dockerfile.souvap"
     KANIKO_ARGS: "--build-arg version=${SEMANTIC_VERSION}"
+    IMAGE_NAME: *IMAGE_NAME
 
 push-image-souvap-standalone-job:
   stage: publish
   extends: .push-image-souvap
-  variables:
-    SOUVAP_IMAGE_NAME: "dovecot-connector"
 
 publish-helm-charts-souvap:
   extends: .publish-helm-charts-souvap
-
 ...
