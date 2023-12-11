@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.0...v1.1.1) (2023-12-11)
+
+
+### Bug Fixes
+
+* **ci:** reference common-ci v1.11.x to push sbom and signature to souvap ([b065ee2](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/b065ee24d7e68ace2421eb47cc6493f2786876e0))
+
 ## [1.1.0](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.0.2...v1.1.0) (2023-11-29)
 
 
