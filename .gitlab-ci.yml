@@ -1,21 +1,18 @@
 ---
 include:
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.11.1"
+    ref: "v1.12.0"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
-      - "templates/souvap.yaml"
       - "jobs/lint-pre-commit.yaml"
       - "jobs/lint-commit-messages.yaml"
       - "jobs/semantic-release-env.yaml"
       - "jobs/container-build-souvap.yaml"
-      - "jobs/package-and-publish-helm-charts.yaml"
+      - "jobs/package-and-publish-helm-charts-souvap.yaml"
 
 variables:
   SOUVAP_HELM_PROJECT_ID: 129
-  SOUVAP_DOCKER_ACCESS_TOKEN: ${SOUVAP_REGISTRY_TOKEN}
-  SOUVAP_REGISTRY_PATH: souvap/tooling/images/dovecot-connector
   IMAGE_NAME: "dovecot-connector"
 
 download-python-doveadm:
@@ -44,6 +41,4 @@ container-build:
     DOCKERFILE_PATH: "docker/dovecot-connector/Dockerfile.souvap"
     KANIKO_ARGS: "--build-arg version=${SEMANTIC_VERSION}"
 
-publish-helm-charts-souvap:
-  extends: .publish-helm-charts-souvap
 ...
