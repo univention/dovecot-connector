@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.1...v1.1.2) (2023-12-18)
+
+
+### Bug Fixes
+
+* **ci:** add Helm chart signing and publishing to souvap via OCI, common-ci 1.12.x ([bfbdc2e](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/bfbdc2edb9429734ad7d0b2a76d706cfaf0c2d03))
+
 ## [1.1.1](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.0...v1.1.1) (2023-12-11)
 
 
