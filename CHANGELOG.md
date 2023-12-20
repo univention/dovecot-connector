@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.2...v1.1.3) (2023-12-20)
+
+
+### Bug Fixes
+
+* **docker:** update ucs-base 5.2-0 from v0.7.5 ro v0.10.0 ([aa741d1](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/aa741d1e47a6fe3f3d867781d626500085a886ac))
+
 ## [1.1.2](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.1...v1.1.2) (2023-12-18)
 
 
