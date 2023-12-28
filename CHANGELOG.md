@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.3...v1.1.4) (2023-12-28)
+
+
+### Bug Fixes
+
+* **licensing/ci:** add spdx license headers, add license header checking pre-commit ([292489a](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/292489a8289674ae801d525220bd4c1a88441494))
+
 ## [1.1.3](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.2...v1.1.3) (2023-12-20)
 
 
