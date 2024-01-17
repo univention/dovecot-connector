@@ -4,7 +4,7 @@
 ---
 include:
   - project: "univention/customers/dataport/upx/common-ci"
-    ref: "v1.14.0"
+    ref: "v1.16.2"
     file:
       - "defaults/stages.yaml"
       - "defaults/souvap-workflow.yaml"
@@ -13,6 +13,7 @@ include:
       - "jobs/semantic-release-env.yaml"
       - "jobs/container-build-souvap.yaml"
       - "jobs/package-and-publish-helm-charts-souvap.yaml"
+      - "jobs/check-debian-updates.yaml"
 
 variables:
   SOUVAP_HELM_PROJECT_ID: 129
@@ -22,6 +23,10 @@ download-python-doveadm:
   image: ${DOCKERHUB_CACHE}library/alpine:3.16.2
   stage: prepare
   interruptible: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: "never"
+    - when: "on_success"
   before_script:
     - echo "Explicitly skip the default action docker login"
   script:
@@ -44,4 +49,7 @@ container-build:
     DOCKERFILE_PATH: "docker/dovecot-connector/Dockerfile.souvap"
     KANIKO_ARGS: "--build-arg version=${SEMANTIC_VERSION}"
 
+check-debian-updates:
+  variables:
+    TARGET_IMAGE: "${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:latest"
 ...
