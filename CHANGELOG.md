@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.4...v1.2.0) (2024-01-18)
+
+
+### Features
+
+* **ci:** add debian update check jobs for scheduled pipeline ([2792f8c](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/2792f8c5adf8b70a633ec871452c8b59c291afda))
+
+
+### Bug Fixes
+
+* **deps:** add renovate.json ([c2e2233](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/commit/c2e2233ecc91cc7640e9fd156eda9c6a636096e7))
+
 ## [1.1.4](https://git.knut.univention.de/univention/customers/dataport/upx/dovecot-connector/compare/v1.1.3...v1.1.4) (2023-12-28)
 
 
