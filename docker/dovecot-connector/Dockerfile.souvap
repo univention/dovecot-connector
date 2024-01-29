@@ -4,10 +4,10 @@ ARG DOCKERHUB_CACHE=""
 ARG UNIVENTION_REGISTRY="gitregistry.knut.univention.de"
 
 ARG UCS_BASE_IMAGE=gitregistry.knut.univention.de/univention/components/ucs-base-image/ucs-base-520
-ARG UCS_BASE_IMAGE_TAG=0.10.0
+ARG UCS_BASE_IMAGE_TAG=0.11.0
 
 ARG LISTENER_BASE_IMAGE=gitregistry.knut.univention.de/univention/customers/dataport/upx/container-listener-base/listener-base
-ARG LISTENER_BASE_IMAGE_TAG=v0.4.1
+ARG LISTENER_BASE_IMAGE_TAG=0.5.0
 
 
 ###############################################################################
