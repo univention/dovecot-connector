@@ -44,12 +44,12 @@ DockerImage = gitregistry.knut.univention.de/univention/customers/dataport/upx/d
 # Path to script inside the container (absolute)
 DockerScriptConfigure = /tmp/dovecot-connector.configure
 
-Description = Synchronize UCS User-deletion to Dovecot
+Description = Synchronize Nubus User-deletion to Dovecot
 
 SupportedUcsVersions = 4.4-8, 5.0-0
 
 LongDescription = <p>
-		The Dovecot Connector App cleans up users deleted on UCS
+		The Dovecot Connector App cleans up users deleted in Univention Nubus.
 	</p>
 	<p>
 	</p>
@@ -64,10 +64,12 @@ LongDescription = <p>
 Logo = logo.svg
 
 ListenerUDMVersion = 1
+SupportUrl = https://www.univention.com/products/support-services/contact-support/
+Contact = sales@univention.de
 
 [de]
 
-Description = UCS-Benutzer-Löschungen nach Dovecot synchronisieren
+Description = Nubus Benutzer-Löschungen nach Dovecot synchronisieren
 
 LongDescription = <p>
 		Die Dovecot Connector App synchronisiert zu löschende Benutzer zu einem entfernten Dovecot über die doveadm Schnittstelle von Dovecot.
@@ -81,5 +83,6 @@ LongDescription = <p>
 		Sollte die http API des doveadm nicht per https zu erreichen sein, ist die Verbindung anderweitig abzusichern, z.B. durch die Nutzung eines verschlüsselten Tunnels.
 		<br>
 	</p>
+SupportUrl = https://www.univention.de/produkte/support-services/support-kontaktieren/
 
 # [EOF]
